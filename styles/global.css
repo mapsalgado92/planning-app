@@ -1,0 +1,21 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100%;
+  width: 100%
+}
+
+main {
+  max-width: 100vw
+}
+
+.react-datepicker-popper {
+  z-index: 100!important;
+}
+
+.dropdown-menu {
+  max-height: 400px;
+  overflow-y: scroll;
+}
