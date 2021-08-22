@@ -184,7 +184,7 @@ const Capacity = (props) => {
         })
 
         if (entry.fcAttrition && newPlanWeek.expectedFTE) {
-          newPlanWeek.expectedFTE = (newPlanWeek.expectedFTE - (newPlanWeek.totalFTE - current.totalFTE)) * (1 - parseFloat(entry.fcAttrition))
+          newPlanWeek.expectedFTE = (newPlanWeek.expectedFTE - (current.totalFTE - newPlanWeek.totalFTE)) * (1 - parseFloat(entry.fcAttrition))
         }
       }
 
