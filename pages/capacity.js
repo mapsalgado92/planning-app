@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import { useState } from 'react'
 import { Row, Col, ListGroup, Button, Container, Form, DropdownButton, InputGroup } from 'react-bootstrap'
+import SQLTable from '../components/capacity/SQLTable'
 import { connectToDatabase } from '../lib/mongodb'
 
 const Capacity = (props) => {
@@ -8,6 +9,7 @@ const Capacity = (props) => {
   const [selected, setSelected] = useState({})
   const [formInfo, setFormInfo] = useState({ toWeek: "2021w10" })
   const [capacity, setCapacity] = useState([])
+  const [output, setOutput] = useState(null)
 
   const headcountFields = [
     "attrition",
@@ -40,6 +42,14 @@ const Capacity = (props) => {
     "fcVolumes",
     "fcAHT",
     "fcRequirements"
+  ]
+
+  const capacityFields = [
+    "totalHC",
+    "totalFTE",
+    "expectedFTE",
+    "requiredFTE",
+    "trainees"
   ]
 
   const handleSelect = async (item, type) => {
@@ -204,6 +214,22 @@ const Capacity = (props) => {
     console.log(newPlan)
 
     setCapacity(newPlan)
+
+    let outputHeaders = [...capacityFields]
+
+    let outputData = newPlan.map(weekly =>
+      [weekly.week.code, weekly.week.firstDate.split("T")[0], ...outputHeaders.map(header =>
+        !isNaN(weekly[header]) && Math.trunc(weekly[header])
+      )]
+    )
+
+    setOutput({
+      data: {
+        header: ["Week", "First Date", ...outputHeaders],
+        entries: outputData
+      },
+      isConverted: true
+    })
   }
 
 
@@ -264,9 +290,15 @@ const Capacity = (props) => {
 
             <br />
 
-            <Button onClick={handleGenerate} disabled={!selected.week}>GENERATE CAPACITY</Button>
+            <Button onClick={handleGenerate} variant="dark" disabled={!selected.week}>GENERATE CAPACITY</Button>
 
           </Form>
+          {output &&
+            <SQLTable input={output} title="Capacity View">
+
+            </SQLTable>
+
+          }
         </Container>
 
 

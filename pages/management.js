@@ -33,10 +33,11 @@ export default function Management(props) {
           <Row>
             <Col sm={3}>
               <h1>Management</h1>
+              <br></br>
               <ListGroup>
                 <ListGroup.Item action onClick={() => setScreen("projects")}>Projects</ListGroup.Item>
                 <ListGroup.Item action onClick={() => setScreen("lobs")}>LOBs</ListGroup.Item>
-                <ListGroup.Item action onClick={() => setScreen("languages")}>Languages</ListGroup.Item>
+
                 <ListGroup.Item action onClick={() => setScreen("capPlans")}>Capacity Plans</ListGroup.Item>
               </ListGroup>
 
