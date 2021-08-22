@@ -1,27 +1,86 @@
 import Head from 'next/head'
 import { useState } from 'react'
-import { Row, Col, ListGroup, Button, Container } from 'react-bootstrap'
+import { Row, Col, ListGroup, Button, Container, Form, DropdownButton, InputGroup } from 'react-bootstrap'
 import { connectToDatabase } from '../lib/mongodb'
 
 const Capacity = (props) => {
   const [data, setData] = useState(props)
-  const [selected, setSelected] = useState({ project: "60f9f1b3c1668d3236ad1a96", lob: "6118f4ffbe1a793f90084154", capPlan: "611d8220de21153d8c7ed396" })
+  const [selected, setSelected] = useState({})
   const [formInfo, setFormInfo] = useState({ toWeek: "2021w10" })
   const [capacity, setCapacity] = useState([])
 
+  const headcountFields = [
+    "attrition",
+    "moveIN",
+    "moveOUT",
+    "loaIN",
+    "loaOUT",
+    "rwsIN",
+    "rwsOUT"
+  ]
+
+  const trainingFields = [
+    "trCommit",
+    "trGap",
+    "trAttrition",
+    "trWeeks",
+    "ocpWeeks"
+  ]
+
+  const targetFields = [
+    "billable",
+    "requirements",
+    "tgAHT",
+    "tgSL"
+  ]
+
+  const forecastFields = [
+    "fcAttrition",
+    "fcTrAttrition",
+    "fcVolumes",
+    "fcAHT",
+    "fcRequirements"
+  ]
+
+  const handleSelect = async (item, type) => {
+
+    if (type === "project") {
+      setSelected({ project: item, lob: null, capPlan: null, week: null })
+    } else if (type === "lob") {
+      setSelected({ ...selected, lob: item, capPlan: null, week: null })
+    } else if (type === "capPlan") {
+      setSelected({ ...selected, capPlan: item, week: null })
+    } else if (type === "week") {
+      setSelected({ ...selected, week: item })
+      setFormInfo({ ...formInfo, toWeek: item.code })
+    }
+  }
+
   const handleGenerate = async () => {
-    let project = data.projects.find(project => project._id === selected.project)
-    let lob = data.lobs.find(lob => lob._id === selected.lob)
-    let capPlan = data.capPlans.find(capPlan => capPlan._id === selected.capPlan)
-    let entries = await fetch(`api/capEntries/capPlan=${selected.capPlan}`).then(data => data.json()).catch()
+
+    let capPlan = selected.capPlan
+    let entries = await fetch(`api/capEntries/capPlan=${capPlan._id}`).then(data => data.json()).catch()
 
     let weeks = data.weeks.slice(data.weeks.indexOf(data.weeks.find(week => week.code === capPlan.firstWeek)), 1 + data.weeks.indexOf(data.weeks.find(week => week.code === formInfo.toWeek)))
 
     //console.log(project, lob, capPlan)
 
-    console.log("ENTRIES", entries)
+    console.log("CAPACITY ENTRIES", entries)
 
-    console.log("WEEKS", weeks)
+    let today = new Date()
+
+    const thisWeek = weeks.find(week => {
+      return week.firstDate > today.toISOString()
+    }
+    )
+
+    if (thisWeek) {
+      console.log(thisWeek.code)
+    } else {
+      console.log("Current week not in range!")
+      return -1
+    }
+
 
     //GENERATE CURRENT
     let current = {
@@ -33,11 +92,12 @@ const Capacity = (props) => {
 
     if (!current.entry) {
       console.log("NO ENTRY FOR FIRST WEEK!")
+      return null
     }
 
     current.trWeeks = parseInt(current.entry.trWeeks)
     current.ocpWeeks = parseInt(current.entry.ocpWeeks)
-    current.billable = parseInt(current.entry.billable)
+    current.billableFTE = parseInt(current.entry.billable)
 
     let newPlan = weeks.map(week => {
       let entry = entries.find(entry => entry.week === week.code)
@@ -45,8 +105,15 @@ const Capacity = (props) => {
       let newPlanWeek = {
         totalHC: current.totalHC,
         totalFTE: current.totalFTE,
+        expectedFTE: current.expectedFTE,
+        billableFTE: current.billableFTE,
+        requiredFTE: current.requiredFTE,
         trainees: 0,
-        billable: current.billable
+
+      }
+
+      if (week.code === thisWeek.code) {
+        newPlanWeek.expectedFTE = current.totalFTE
       }
 
       if (entry) {
@@ -83,6 +150,22 @@ const Capacity = (props) => {
           newPlanWeek.totalFTE += parseFloat(entry.rwsIN)
         }
 
+        if (entry.comment) {
+          newPlanWeek.comment = entry.comment
+        }
+
+        if (entry.billable) {
+          newPlanWeek.billableFTE = parseFloat(entry.billable)
+        }
+
+        if (entry.fcAttrition && newPlanWeek.expectedFTE) {
+          newPlanWeek.expectedFTE = (newPlanWeek.expectedFTE - (newPlanWeek.totalFTE - current.totalFTE)) * (1 - parseFloat(entry.fcAttrition))
+        }
+
+        if (entry.trWeeks) {
+          current.trWeeks = parseFloat(entry.trWeeks)
+        }
+
         if (entry.trCommit) {
           current.inTraining.push({
             trCommit: parseFloat(entry.trCommit),
@@ -91,16 +174,7 @@ const Capacity = (props) => {
             weeksToLive: parseFloat(current.trWeeks) + 1
           })
         }
-
-        if (entry.comment) {
-          newPlanWeek.comment = entry.comment
-        }
-
-        if (entry.billable) {
-          newPlanWeek.billable = parseFloat(entry.billable)
-        }
       }
-
 
       current.inTraining.forEach(batch => {
         let trainingTotal = batch.trCommit + batch.trGap - batch.trAttrition
@@ -119,8 +193,12 @@ const Capacity = (props) => {
       return { week, ...newPlanWeek, entry }
     })
 
+    console.log(newPlan)
+
     setCapacity(newPlan)
   }
+
+
 
   return (
     <>
@@ -128,13 +206,63 @@ const Capacity = (props) => {
         <title>Planning Tool</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div>
+      <main>
+
         <Container className="mt-4">
-          <Button onClick={handleGenerate}>Do me!</Button>
+          <h1>Capacity</h1>
+          <Form>
+            <Form.Label as="h4">Selection</Form.Label>
+            <InputGroup>
+              <DropdownButton className="me-2" title={selected.project ? selected.project.name : "Select a Project"} disabled={data.projects === 0}>
+                <ListGroup variant="flush">
+                  {data.projects && data.projects.map(project =>
+                    <ListGroup.Item key={project._id} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(project, "project") }}>
+                      {project.name}
+                    </ListGroup.Item>)}
+                </ListGroup>
+              </DropdownButton>
+
+
+              <DropdownButton className="me-2" title={selected.lob ? selected.lob.name : "Select a LOB"} disabled={!selected.project}>
+                <ListGroup variant="flush">
+                  {selected.project && data.lobs.filter(lob => lob.project === selected.project._id) && data.lobs.filter(lob => lob.project === selected.project._id).map(lob =>
+                    <ListGroup.Item key={lob._id} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(lob, "lob") }}>
+                      {lob.name}
+                    </ListGroup.Item>)}
+                </ListGroup>
+              </DropdownButton>
+
+              <DropdownButton className="me-2" title={selected.capPlan ? selected.capPlan.name : "Select a Capacity Plan"} disabled={!selected.lob}>
+                <ListGroup variant="flush">
+                  {selected.lob && data.capPlans.filter(capPlan => capPlan.lob === selected.lob._id) && data.capPlans.filter(capPlan => capPlan.lob === selected.lob._id).map(capPlan =>
+                    <ListGroup.Item key={capPlan._id} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(capPlan, "capPlan") }}>
+                      {capPlan.name}
+                    </ListGroup.Item>)}
+                </ListGroup>
+              </DropdownButton>
+            </InputGroup>
+
+            <br></br>
+
+            <Form.Label as="h4">To Week</Form.Label>
+            <DropdownButton variant="danger" className="me-2" title={selected.week ? selected.week.code + " - " + selected.week.firstDate.split("T")[0] : "Select a Week"} disabled={!selected.capPlan}>
+              <ListGroup variant="flush">
+                {selected.capPlan && data.weeks.slice(data.weeks.indexOf(data.weeks.find(week => week.code === selected.capPlan.firstWeek))) && data.weeks.slice(data.weeks.indexOf(data.weeks.find(week => week.code === selected.capPlan.firstWeek))).map(week =>
+                  <ListGroup.Item key={week._id} action className="rounded-0 flush" variant={(selected.week && week.code === selected.week.code) ? "warning" : "light"} onClick={(e) => { e.preventDefault(); handleSelect(week, "week") }}>
+                    {week.code + " - " + week.firstDate.split("T")[0]}
+                  </ListGroup.Item>)}
+              </ListGroup>
+            </DropdownButton>
+
+            <br />
+
+            <Button onClick={handleGenerate} disabled={!selected.week}>GENERATE CAPACITY</Button>
+
+          </Form>
         </Container>
 
 
-      </div>
+      </main>
     </>
   )
 }

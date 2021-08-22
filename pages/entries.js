@@ -84,6 +84,12 @@ const Entries = (props) => {
 
     newEntry = { ...newEntry, ...formInfo }
 
+    Object.keys(newEntry).forEach(key => {
+      if (newEntry[key] === "delete") {
+        newEntry[key] = ""
+      }
+    })
+
     let res = await fetch("/api/capEntries",
       {
         method: 'POST',

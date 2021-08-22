@@ -29,11 +29,10 @@ export default function Management(props) {
 
       <main>
         <Container className="mt-4">
-          <h1>Management</h1>
 
           <Row>
             <Col sm={3}>
-
+              <h1>Management</h1>
               <ListGroup>
                 <ListGroup.Item action onClick={() => setScreen("projects")}>Projects</ListGroup.Item>
                 <ListGroup.Item action onClick={() => setScreen("lobs")}>LOBs</ListGroup.Item>
