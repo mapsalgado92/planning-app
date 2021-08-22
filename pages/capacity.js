@@ -158,10 +158,6 @@ const Capacity = (props) => {
           newPlanWeek.billableFTE = parseFloat(entry.billable)
         }
 
-        if (entry.fcAttrition && newPlanWeek.expectedFTE) {
-          newPlanWeek.expectedFTE = (newPlanWeek.expectedFTE - (newPlanWeek.totalFTE - current.totalFTE)) * (1 - parseFloat(entry.fcAttrition))
-        }
-
         if (entry.trWeeks) {
           current.trWeeks = parseFloat(entry.trWeeks)
         }
@@ -174,19 +170,25 @@ const Capacity = (props) => {
             weeksToLive: parseFloat(current.trWeeks) + 1
           })
         }
+
+        current.inTraining.forEach(batch => {
+          let trainingTotal = batch.trCommit + batch.trGap - batch.trAttrition
+          if (batch.weeksToLive > 1) {
+            newPlanWeek.trainees += trainingTotal
+            batch.weeksToLive--
+          } else if (batch.weeksToLive === 1) {
+            newPlanWeek.totalHC += trainingTotal
+            newPlanWeek.totalFTE += trainingTotal
+            batch.weeksToLive--
+          }
+        })
+
+        if (entry.fcAttrition && newPlanWeek.expectedFTE) {
+          newPlanWeek.expectedFTE = (newPlanWeek.expectedFTE - (newPlanWeek.totalFTE - current.totalFTE)) * (1 - parseFloat(entry.fcAttrition))
+        }
       }
 
-      current.inTraining.forEach(batch => {
-        let trainingTotal = batch.trCommit + batch.trGap - batch.trAttrition
-        if (batch.weeksToLive > 1) {
-          newPlanWeek.trainees += trainingTotal
-          batch.weeksToLive--
-        } else if (batch.weeksToLive === 1) {
-          newPlanWeek.totalHC += trainingTotal
-          newPlanWeek.totalFTE += trainingTotal
-          batch.weeksToLive--
-        }
-      })
+
 
       current = { ...current, ...newPlanWeek }
 
