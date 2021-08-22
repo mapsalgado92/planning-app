@@ -105,7 +105,7 @@ const Capacity = (props) => {
       let newPlanWeek = {
         totalHC: current.totalHC,
         totalFTE: current.totalFTE,
-        expectedFTE: current.expectedFTE,
+        expectedFTE: current.expectedFTE ? current.expectedFTE : null,
         billableFTE: current.billableFTE,
         requiredFTE: current.requiredFTE,
         trainees: 0,
@@ -116,78 +116,84 @@ const Capacity = (props) => {
         newPlanWeek.expectedFTE = current.totalFTE
       }
 
-      if (entry) {
-        if (entry.attrition) {
-          newPlanWeek.totalHC -= parseFloat(entry.attrition)
-          newPlanWeek.totalFTE -= parseFloat(entry.attrition)
-        }
 
-        if (entry.moveOUT) {
-          newPlanWeek.totalHC -= parseFloat(entry.moveOUT)
-          newPlanWeek.totalFTE -= parseFloat(entry.moveOUT)
-        }
-
-        if (entry.loaOUT) {
-          newPlanWeek.totalHC -= parseFloat(entry.loaOUT)
-          newPlanWeek.totalFTE -= parseFloat(entry.loaOUT)
-        }
-
-        if (entry.rwsOUT) {
-          newPlanWeek.totalFTE -= parseFloat(entry.rwsOUT)
-        }
-
-        if (entry.moveIN) {
-          newPlanWeek.totalHC += parseFloat(entry.moveIN)
-          newPlanWeek.totalFTE += parseFloat(entry.moveIN)
-        }
-
-        if (entry.loaIN) {
-          newPlanWeek.totalHC += parseFloat(entry.moveIN)
-          newPlanWeek.totalFTE += parseFloat(entry.moveIN)
-        }
-
-        if (entry.rwsIN) {
-          newPlanWeek.totalFTE += parseFloat(entry.rwsIN)
-        }
-
-        if (entry.comment) {
-          newPlanWeek.comment = entry.comment
-        }
-
-        if (entry.billable) {
-          newPlanWeek.billableFTE = parseFloat(entry.billable)
-        }
-
-        if (entry.trWeeks) {
-          current.trWeeks = parseFloat(entry.trWeeks)
-        }
-
-        if (entry.trCommit) {
-          current.inTraining.push({
-            trCommit: parseFloat(entry.trCommit),
-            trGap: entry.trGap ? parseFloat(entry.trGap) : 0,
-            trAttrition: entry.trAttrition ? parseFloat(entry.trAttrition) : 0,
-            weeksToLive: parseFloat(current.trWeeks) + 1
-          })
-        }
-
-        current.inTraining.forEach(batch => {
-          let trainingTotal = batch.trCommit + batch.trGap - batch.trAttrition
-          if (batch.weeksToLive > 1) {
-            newPlanWeek.trainees += trainingTotal
-            batch.weeksToLive--
-          } else if (batch.weeksToLive === 1) {
-            newPlanWeek.totalHC += trainingTotal
-            newPlanWeek.totalFTE += trainingTotal
-            batch.weeksToLive--
-          }
-        })
-
-        if (entry.fcAttrition && newPlanWeek.expectedFTE) {
-          newPlanWeek.expectedFTE = (newPlanWeek.expectedFTE - (current.totalFTE - newPlanWeek.totalFTE)) * (1 - parseFloat(entry.fcAttrition))
-        }
+      if (entry && entry.attrition) {
+        newPlanWeek.totalHC -= parseFloat(entry.attrition)
+        newPlanWeek.totalFTE -= parseFloat(entry.attrition)
+        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE -= parseFloat(entry.attrition))
       }
 
+      if (entry && entry.moveOUT) {
+        newPlanWeek.totalHC -= parseFloat(entry.moveOUT)
+        newPlanWeek.totalFTE -= parseFloat(entry.moveOUT)
+        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE -= parseFloat(entry.moveOUT))
+      }
+
+      if (entry && entry.loaOUT) {
+        newPlanWeek.totalHC -= parseFloat(entry.loaOUT)
+        newPlanWeek.totalFTE -= parseFloat(entry.loaOUT)
+        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE -= parseFloat(entry.loaOUT))
+      }
+
+      if (entry && entry.rwsOUT) {
+        newPlanWeek.totalFTE -= parseFloat(entry.rwsOUT)
+        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE -= parseFloat(entry.rwsOUT))
+      }
+
+      if (entry && entry.moveIN) {
+        newPlanWeek.totalHC += parseFloat(entry.moveIN)
+        newPlanWeek.totalFTE += parseFloat(entry.moveIN)
+        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += parseFloat(entry.moveIN))
+      }
+
+      if (entry && entry.loaIN) {
+        newPlanWeek.totalHC += parseFloat(entry.loaIN)
+        newPlanWeek.totalFTE += parseFloat(entry.loaIN)
+        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += parseFloat(entry.loaIN))
+      }
+
+      if (entry && entry.rwsIN) {
+        newPlanWeek.totalFTE += parseFloat(entry.rwsIN)
+        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += parseFloat(entry.rwsIN))
+      }
+
+      if (entry && entry.comment) {
+        newPlanWeek.comment = entry.comment
+      }
+
+      if (entry && entry.billable) {
+        newPlanWeek.billableFTE = parseFloat(entry.billable)
+      }
+
+      if (entry && entry.trWeeks) {
+        current.trWeeks = parseFloat(entry.trWeeks)
+      }
+
+      if (entry && entry.trCommit) {
+        current.inTraining.push({
+          trCommit: parseFloat(entry.trCommit),
+          trGap: entry.trGap ? parseFloat(entry.trGap) : 0,
+          trAttrition: entry.trAttrition ? parseFloat(entry.trAttrition) : 0,
+          weeksToLive: parseFloat(current.trWeeks) + 1
+        })
+      }
+
+      current.inTraining.forEach(batch => {
+        let trainingTotal = batch.trCommit + batch.trGap - batch.trAttrition
+        if (batch.weeksToLive > 1) {
+          newPlanWeek.trainees += trainingTotal
+          batch.weeksToLive--
+        } else if (batch.weeksToLive === 1) {
+          newPlanWeek.totalHC += trainingTotal
+          newPlanWeek.totalFTE += trainingTotal
+          newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += trainingTotal)
+          batch.weeksToLive--
+        }
+      })
+
+      if (entry && entry.fcAttrition && newPlanWeek.expectedFTE) {
+        newPlanWeek.expectedFTE = newPlanWeek.expectedFTE * (1 - parseFloat(entry.fcAttrition))
+      }
 
 
       current = { ...current, ...newPlanWeek }
