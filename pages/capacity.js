@@ -48,6 +48,11 @@ const Capacity = (props) => {
     "totalHC",
     "totalFTE",
     "expectedFTE",
+    "billableFTE",
+    "billVar",
+    "exBillVar",
+    "reqVar",
+    "exReqVar",
     "requiredFTE",
     "trainees"
   ]
@@ -205,6 +210,11 @@ const Capacity = (props) => {
         newPlanWeek.expectedFTE = newPlanWeek.expectedFTE * (1 - parseFloat(entry.fcAttrition))
       }
 
+      //Calculations
+      newPlanWeek.billableFTE && (newPlanWeek.billVar = newPlanWeek.totalFTE - newPlanWeek.billableFTE)
+      newPlanWeek.expectedFTE && newPlanWeek.billableFTE && (newPlanWeek.exBillVar = newPlanWeek.expectedFTE - newPlanWeek.billableFTE)
+      newPlanWeek.requiredFTE && (newPlanWeek.reqVar = newPlanWeek.totalFTE - newPlanWeek.requiredFTE)
+      newPlanWeek.expectedFTE && newPlanWeek.requiredFTE && (newPlanWeek.exReqVar = newPlanWeek.expectedFTE - newPlanWeek.requiredFTE)
 
       current = { ...current, ...newPlanWeek }
 
@@ -219,7 +229,7 @@ const Capacity = (props) => {
 
     let outputData = newPlan.map(weekly =>
       [weekly.week.code, weekly.week.firstDate.split("T")[0], ...outputHeaders.map(header =>
-        !isNaN(weekly[header]) && Math.trunc(weekly[header])
+        !isNaN(weekly[header]) && Math.round(weekly[header] * 10) / 10
       )]
     )
 
@@ -293,6 +303,8 @@ const Capacity = (props) => {
             <Button onClick={handleGenerate} variant="dark" disabled={!selected.week}>GENERATE CAPACITY</Button>
 
           </Form>
+
+          <br />
           {output &&
             <SQLTable input={output} title="Capacity View">
 

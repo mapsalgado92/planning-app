@@ -19,3 +19,13 @@ main {
   max-height: 400px;
   overflow-y: scroll;
 }
+
+.sql-scroll{
+  max-height: 80vh;
+  overflow: scroll
+}
+
+.header{
+  position:sticky;
+  top: 0 ;
+}
