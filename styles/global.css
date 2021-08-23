@@ -21,7 +21,7 @@ main {
 }
 
 .sql-scroll{
-  max-height: 80vh;
+  max-height: 90vh;
   overflow: scroll
 }
 

@@ -7,9 +7,9 @@ const SQLTable = ({ input, title }) => {
       </span>
       <div className="sql-scroll">
         {input.isConverted && (input.data.entries.length > 0) ?
-          <table className="table table-striped ">
-            <thead >
-              <tr className="bg-dark text-light header">
+          <table className="table table-striped">
+            <thead className="header">
+              <tr className="bg-dark text-light">
                 {input.data.header.map((item) =>
                   <th scope="col" className="header" key={"header-" + item}>{item}</th>
                 )}

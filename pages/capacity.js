@@ -47,8 +47,8 @@ const Capacity = (props) => {
   const capacityFields = [
     "totalHC",
     "totalFTE",
-    "expectedFTE",
     "billableFTE",
+    "expectedFTE",
     "billVar",
     "exBillVar",
     "reqVar",
@@ -229,7 +229,7 @@ const Capacity = (props) => {
 
     let outputData = newPlan.map(weekly =>
       [weekly.week.code, weekly.week.firstDate.split("T")[0], ...outputHeaders.map(header =>
-        !isNaN(weekly[header]) && Math.round(weekly[header] * 10) / 10
+        (weekly[header] || weekly[header] === 0) ? Math.round(weekly[header] * 10) / 10 : null
       )]
     )
 
@@ -311,6 +311,7 @@ const Capacity = (props) => {
             </SQLTable>
 
           }
+          <br />
         </Container>
 
 
