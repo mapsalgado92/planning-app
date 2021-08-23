@@ -8,8 +8,8 @@ const SQLTable = ({ input, title }) => {
       <div className="sql-scroll">
         {input.isConverted && (input.data.entries.length > 0) ?
           <table className="table table-striped">
-            <thead className="header">
-              <tr className="bg-dark text-light">
+            <thead >
+              <tr>
                 {input.data.header.map((item) =>
                   <th scope="col" className="header" key={"header-" + item}>{item}</th>
                 )}
