@@ -137,7 +137,7 @@ const Capacity = (props) => {
         newPlanWeek.totalHC -= parseFloat(entry.attrition)
         newPlanWeek.totalFTE -= parseFloat(entry.attrition)
         newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE -= parseFloat(entry.attrition))
-        newPlanWeek.attrPercent = entry.attrition / current.totalHC
+        newPlanWeek.attrPercent = entry.attrition / current.totalHC * 100
       }
 
       if (entry && entry.moveOUT) {
