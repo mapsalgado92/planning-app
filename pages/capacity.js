@@ -54,6 +54,7 @@ const Capacity = (props) => {
     "reqVar",
     "exReqVar",
     "requiredFTE",
+    "attrPercent",
     "trainees"
   ]
 
@@ -136,6 +137,7 @@ const Capacity = (props) => {
         newPlanWeek.totalHC -= parseFloat(entry.attrition)
         newPlanWeek.totalFTE -= parseFloat(entry.attrition)
         newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE -= parseFloat(entry.attrition))
+        neePlanWeek.attrPercent = entry.attrition / current.totalHC
       }
 
       if (entry && entry.moveOUT) {
