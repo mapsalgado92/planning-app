@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { useState } from 'react'
-import { Row, Col, ListGroup, Button, Container, Form, DropdownButton, InputGroup } from 'react-bootstrap'
+import { Row, Col, ListGroup, Button, Container, Form, DropdownButton, InputGroup, Tabs, Tab } from 'react-bootstrap'
 import SQLTable from '../components/capacity/SQLTable'
 import { connectToDatabase } from '../lib/mongodb'
 
@@ -10,6 +10,11 @@ const Capacity = (props) => {
   const [formInfo, setFormInfo] = useState({ toWeek: "2021w10" })
   const [capacity, setCapacity] = useState([])
   const [output, setOutput] = useState(null)
+  const [entries, setEntries] = useState(null)
+  const [targetForecast, setTargetForecast] = useState(null)
+
+
+
 
   const headcountFields = [
     "attrition",
@@ -55,7 +60,8 @@ const Capacity = (props) => {
     "exReqVar",
     "requiredFTE",
     "attrPercent",
-    "trainees"
+    "trainees",
+    "nesting"
   ]
 
   const handleSelect = async (item, type) => {
@@ -125,6 +131,7 @@ const Capacity = (props) => {
         billableFTE: current.billableFTE,
         requiredFTE: current.requiredFTE,
         trainees: 0,
+        nesting: 0
 
       }
 
@@ -191,12 +198,14 @@ const Capacity = (props) => {
           trCommit: parseFloat(entry.trCommit),
           trGap: entry.trGap ? parseFloat(entry.trGap) : 0,
           trAttrition: entry.trAttrition ? parseFloat(entry.trAttrition) : 0,
-          weeksToLive: parseFloat(current.trWeeks) + 1
+          weeksToLive: parseFloat(current.trWeeks) + 1,
+          weeksToProd: parseFloat(current.ocpWeeks) + 1
         })
       }
 
       current.inTraining.forEach(batch => {
         let trainingTotal = batch.trCommit + batch.trGap - batch.trAttrition
+
         if (batch.weeksToLive > 1) {
           newPlanWeek.trainees += trainingTotal
           batch.weeksToLive--
@@ -205,6 +214,11 @@ const Capacity = (props) => {
           newPlanWeek.totalFTE += trainingTotal
           newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += trainingTotal)
           batch.weeksToLive--
+        }
+
+        if (batch.weeksToLive < 1 && batch.weeksToProd > 1) {
+          newPlanWeek.nesting += trainingTotal
+          batch.weeksToProd--
         }
       })
 
@@ -242,6 +256,40 @@ const Capacity = (props) => {
       },
       isConverted: true
     })
+
+    let entriesHeaders = [...headcountFields, ...trainingFields]
+
+    let entriesData = newPlan.map(weekly =>
+      [weekly.week.code, weekly.week.firstDate.split("T")[0], ...entriesHeaders.map(header =>
+        weekly.entry && (weekly.entry[header] || weekly.entry[header] === 0) ? Math.round(weekly.entry[header] * 10) / 10 : null
+      )]
+    )
+
+    setEntries({
+      data: {
+        header: ["Week", "First Date", ...entriesHeaders],
+        entries: entriesData
+      },
+      isConverted: true
+    })
+
+    let targetForecastHeaders = [...forecastFields, ...targetFields]
+
+    let targetForecastData = newPlan.map(weekly =>
+      [weekly.week.code, weekly.week.firstDate.split("T")[0], ...targetForecastHeaders.map(header =>
+        weekly.entry && (weekly.entry[header] || weekly.entry[header] === 0) ? Math.round(weekly.entry[header] * 100) / 100 : null
+      )]
+    )
+
+    setTargetForecast({
+      data: {
+        header: ["Week", "First Date", ...targetForecastHeaders],
+        entries: targetForecastData
+      },
+      isConverted: true
+    })
+
+
   }
 
 
@@ -307,12 +355,35 @@ const Capacity = (props) => {
           </Form>
 
           <br />
-          {output &&
-            <SQLTable input={output} title="Capacity View">
+          <Tabs >
 
-            </SQLTable>
+            <Tab title="Capacity" disabled={!capacity} eventKey="capacity">
+              <br />
+              {output &&
+                <SQLTable input={output} title="Capacity View" />
 
-          }
+
+              }
+
+            </Tab>
+            <Tab title="Headcount" disabled={!entries} eventKey="entries">
+              <br />
+              {entries &&
+                <SQLTable input={entries} title="Headcount View" />
+              }
+            </Tab>
+            <Tab title="Target + Forecast" disabled={!targetForecast} eventKey="targetForecast">
+              <br />
+              {targetForecast &&
+                <SQLTable input={targetForecast} title="Target + Forecast View" />
+              }
+            </Tab>
+
+          </Tabs>
+
+          <br />
+
+
           <br />
         </Container>
 
