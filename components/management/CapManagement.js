@@ -18,7 +18,8 @@ const CapManagement = ({ data, refresh }) => {
     if (type === "capPlan") {
       setFormInfo({
         firstWeek: item.firstWeek,
-        startingHC: item.startingHC
+        startingHC: item.startingHC,
+        active: item.active
       })
     } else {
       setFormInfo({ firstWeek: "", startingHC: "" })
@@ -195,6 +196,14 @@ const CapManagement = ({ data, refresh }) => {
               </DropdownButton>
 
             </InputGroup>
+
+            <Form.Label as="h5" className="mt-4">Active</Form.Label>
+            <Form.Check
+              placeholder="Active Capacity Plan"
+              aria-label="Active Capacity Plan"
+              checked={formInfo.active ? formInfo.active : false}
+              onChange={() => setFormInfo({ ...formInfo, active: !formInfo.active })}
+            />
 
 
             <Form.Label as="h5" className="mt-4">First Week</Form.Label>

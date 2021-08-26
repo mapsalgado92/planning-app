@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 const LobManagement = ({ data, refresh }) => {
   const [selected, setSelected] = useState({ project: null, lob: null })
-  const [formInfo, setFormInfo] = useState({ name: "", startWeek: "", active: true, config: { trWeeks: "", ocpWeeks: "", tgAHT: "", tgSL: "" } })
+  const [formInfo, setFormInfo] = useState({ name: "", startWeek: "", config: { trWeeks: "", ocpWeeks: "", tgAHT: "", tgSL: "" } })
 
 
   const handleSelect = (item, type) => {
@@ -14,7 +14,7 @@ const LobManagement = ({ data, refresh }) => {
       setFormInfo({ name: (item.name || ""), startWeek: (item.startWeek || ""), active: (item.active || false), config: (item.config || { trWeeks: "", ocpWeeks: "", tgAHT: "", tgSL: "" }) })
     } else {
       setSelected({ project: item, lob: null })
-      setFormInfo({ name: "", startWeek: "", active: true, config: { trWeeks: "", ocpWeeks: "", tgAHT: "", tgSL: "" } })
+      setFormInfo({ name: "", startWeek: "", config: { trWeeks: "", ocpWeeks: "", tgAHT: "", tgSL: "" } })
     }
 
   }
@@ -44,7 +44,7 @@ const LobManagement = ({ data, refresh }) => {
 
       console.log(res)
 
-      setFormInfo({ name: "", startWeek: "", active: false, config: { trWeeks: null, ocpWeeks: null, tgAHT: null, tgSL: null } })
+      setFormInfo({ name: "", startWeek: "", config: { trWeeks: null, ocpWeeks: null, tgAHT: null, tgSL: null } })
       refresh("lobs")
     }
   }
@@ -54,10 +54,7 @@ const LobManagement = ({ data, refresh }) => {
     if (formInfo.name) {
       lob.name = formInfo.name
     }
-    if (formInfo.startWeek) {
-      lob.startWeek = formInfo.startWeek
-    }
-    lob.active = formInfo.active
+
     lob.config = formInfo.config
 
     let res = await fetch("/api/lobs",
@@ -74,7 +71,7 @@ const LobManagement = ({ data, refresh }) => {
 
     console.log(res)
 
-    setFormInfo({ name: "", startWeek: "", active: true, config: null })
+    setFormInfo({ name: "", startWeek: "", config: null })
     setSelected({ project: null })
     refresh("lobs")
   }
@@ -140,20 +137,7 @@ const LobManagement = ({ data, refresh }) => {
               value={formInfo.name || ""}
               onChange={(e) => handleChange(e, "name")}
             />
-            <Form.Label as="h5" className="mt-4">Active</Form.Label>
-            <Form.Check
-              placeholder="Active LOB"
-              aria-label="Active LOB"
-              checked={formInfo.active}
-              onChange={() => setFormInfo({ ...formInfo, active: !formInfo.active })}
-            />
-            <Form.Label as="h5" className="mt-4">Start Week</Form.Label>
-            <Form.Control
-              placeholder="LOB Start Week (YYYYw#)"
-              aria-label="Start Week"
-              value={formInfo.startWeek || ""}
-              onChange={(e) => handleChange(e, "startWeek")}
-            />
+
             <Form.Label as="h5" className="mt-4">Config</Form.Label>
             {formInfo.config && Object.keys(formInfo.config).map(key => <>
               <Form.Label as="h6" className="mt-4">{key}</Form.Label>
