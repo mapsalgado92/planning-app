@@ -1,5 +1,4 @@
 import Header from "./Header"
-import Head from "next/dist/next-server/lib/head"
 
 
 const PageLayout = (props) => {
