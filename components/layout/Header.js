@@ -6,7 +6,7 @@ const Header = () => {
   return (
     <nav className="navbar">
       <div className="container">
-        <Link href="/"><a className="navbar-brand text-danger">PLANNING APP</a></Link>
+        <Link href="/"><a className="navbar-brand text-danger">planning app</a></Link>
 
         <ul className="navbar-nav mr-auto d-flex flex-row align-items-center">
 
