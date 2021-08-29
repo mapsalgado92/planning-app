@@ -9,9 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.36",
+    "@fortawesome/free-solid-svg-icons": "^5.15.4",
+    "@fortawesome/react-fontawesome": "^0.1.15",
     "bootstrap": "^5.0.0-beta3",
     "mongodb": "^3.5.9",
-    "next": "latest",
+    "next": "^11.1.0",
     "react": "^17.0.2",
     "react-bootstrap": "^1.6.1",
     "react-datepicker": "^4.1.1",

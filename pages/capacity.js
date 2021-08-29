@@ -3,66 +3,14 @@ import { useState } from 'react'
 import { Row, Col, ListGroup, Button, Container, Form, DropdownButton, InputGroup, Tabs, Tab } from 'react-bootstrap'
 import SQLTable from '../components/capacity/SQLTable'
 import { connectToDatabase } from '../lib/mongodb'
+import useCapacity from '../hooks/useCapacity'
+import CapacityViewer from '../components/capacity/CapacityViewer'
 
 const Capacity = (props) => {
   const [data, setData] = useState(props)
   const [selected, setSelected] = useState({})
-  const [formInfo, setFormInfo] = useState({ toWeek: "2021w10" })
-  const [capacity, setCapacity] = useState([])
-  const [output, setOutput] = useState(null)
-  const [entries, setEntries] = useState(null)
-  const [targetForecast, setTargetForecast] = useState(null)
-
-
-
-
-  const headcountFields = [
-    "attrition",
-    "moveIN",
-    "moveOUT",
-    "loaIN",
-    "loaOUT",
-    "rwsIN",
-    "rwsOUT"
-  ]
-
-  const trainingFields = [
-    "trCommit",
-    "trGap",
-    "trAttrition",
-    "trWeeks",
-    "ocpWeeks"
-  ]
-
-  const targetFields = [
-    "billable",
-    "requirements",
-    "tgAHT",
-    "tgSL"
-  ]
-
-  const forecastFields = [
-    "fcAttrition",
-    "fcTrAttrition",
-    "fcVolumes",
-    "fcAHT",
-    "fcRequirements"
-  ]
-
-  const capacityFields = [
-    "totalHC",
-    "totalFTE",
-    "billableFTE",
-    "expectedFTE",
-    "billVar",
-    "exBillVar",
-    "reqVar",
-    "exReqVar",
-    "requiredFTE",
-    "attrPercent",
-    "trainees",
-    "nesting"
-  ]
+  const [formInfo, setFormInfo] = useState({})
+  const capacity = useCapacity(data)
 
   const handleSelect = async (item, type) => {
 
@@ -78,226 +26,11 @@ const Capacity = (props) => {
     }
   }
 
-  const handleGenerate = async () => {
-
-    let capPlan = selected.capPlan
-    let entries = await fetch(`api/capEntries/capPlan=${capPlan._id}`).then(data => data.json()).catch()
-
-    let weeks = data.weeks.slice(data.weeks.indexOf(data.weeks.find(week => week.code === capPlan.firstWeek)), 1 + data.weeks.indexOf(data.weeks.find(week => week.code === formInfo.toWeek)))
-
-    //console.log(project, lob, capPlan)
-
-    console.log("CAPACITY ENTRIES", entries)
-
-    let today = new Date()
-
-    const thisWeek = weeks.find(week => {
-      return week.firstDate > today.toISOString()
-    }
-    )
-
-    if (thisWeek) {
-      console.log(thisWeek.code)
-    } else {
-      console.log("Current week not in range!")
-      return -1
-    }
-
-
-    //GENERATE CURRENT
-    let current = {
-      totalHC: parseFloat(capPlan.startingHC),
-      totalFTE: parseFloat(capPlan.startingHC),
-      entry: entries.find(entry => entry.week === capPlan.firstWeek),
-      inTraining: []
-    }
-
-    if (!current.entry) {
-      console.log("NO ENTRY FOR FIRST WEEK!")
-      return null
-    }
-
-    current.trWeeks = parseInt(current.entry.trWeeks)
-    current.ocpWeeks = parseInt(current.entry.ocpWeeks)
-    current.billableFTE = parseInt(current.entry.billable)
-
-    let newPlan = weeks.map(week => {
-      let entry = entries.find(entry => entry.week === week.code)
-
-      let newPlanWeek = {
-        totalHC: current.totalHC,
-        totalFTE: current.totalFTE,
-        expectedFTE: current.expectedFTE ? current.expectedFTE : null,
-        billableFTE: current.billableFTE,
-        requiredFTE: current.requiredFTE,
-        trainees: 0,
-        nesting: 0
-
-      }
-
-      if (week.code === thisWeek.code) {
-        newPlanWeek.expectedFTE = current.totalFTE
-      }
-
-
-      if (entry && entry.attrition) {
-        newPlanWeek.totalHC -= parseFloat(entry.attrition)
-        newPlanWeek.totalFTE -= parseFloat(entry.attrition)
-        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE -= parseFloat(entry.attrition))
-        newPlanWeek.attrPercent = entry.attrition / current.totalHC * 100
-      }
-
-      if (entry && entry.moveOUT) {
-        newPlanWeek.totalHC -= parseFloat(entry.moveOUT)
-        newPlanWeek.totalFTE -= parseFloat(entry.moveOUT)
-        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE -= parseFloat(entry.moveOUT))
-      }
-
-      if (entry && entry.loaOUT) {
-        newPlanWeek.totalHC -= parseFloat(entry.loaOUT)
-        newPlanWeek.totalFTE -= parseFloat(entry.loaOUT)
-        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE -= parseFloat(entry.loaOUT))
-      }
-
-      if (entry && entry.rwsOUT) {
-        newPlanWeek.totalFTE -= parseFloat(entry.rwsOUT)
-        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE -= parseFloat(entry.rwsOUT))
-      }
-
-      if (entry && entry.moveIN) {
-        newPlanWeek.totalHC += parseFloat(entry.moveIN)
-        newPlanWeek.totalFTE += parseFloat(entry.moveIN)
-        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += parseFloat(entry.moveIN))
-      }
-
-      if (entry && entry.loaIN) {
-        newPlanWeek.totalHC += parseFloat(entry.loaIN)
-        newPlanWeek.totalFTE += parseFloat(entry.loaIN)
-        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += parseFloat(entry.loaIN))
-      }
-
-      if (entry && entry.rwsIN) {
-        newPlanWeek.totalFTE += parseFloat(entry.rwsIN)
-        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += parseFloat(entry.rwsIN))
-      }
-
-      if (entry && entry.comment) {
-        newPlanWeek.comment = entry.comment
-      }
-
-      if (entry && entry.billable) {
-        newPlanWeek.billableFTE = parseFloat(entry.billable)
-      }
-
-      if (entry && entry.trWeeks) {
-        current.trWeeks = parseFloat(entry.trWeeks)
-      }
-
-      if (entry && entry.trCommit) {
-        current.inTraining.push({
-          trCommit: parseFloat(entry.trCommit),
-          trGap: entry.trGap ? parseFloat(entry.trGap) : 0,
-          trAttrition: entry.trAttrition ? parseFloat(entry.trAttrition) : 0,
-          weeksToLive: parseFloat(current.trWeeks) + 1,
-          weeksToProd: parseFloat(current.ocpWeeks) + 1
-        })
-      }
-
-      current.inTraining.forEach(batch => {
-        let trainingTotal = batch.trCommit + batch.trGap - batch.trAttrition
-
-        if (batch.weeksToLive > 1) {
-          newPlanWeek.trainees += trainingTotal
-          batch.weeksToLive--
-        } else if (batch.weeksToLive === 1) {
-          newPlanWeek.totalHC += trainingTotal
-          newPlanWeek.totalFTE += trainingTotal
-          newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += trainingTotal)
-          batch.weeksToLive--
-        }
-
-        if (batch.weeksToLive < 1 && batch.weeksToProd > 1) {
-          newPlanWeek.nesting += trainingTotal
-          batch.weeksToProd--
-        }
-      })
-
-      if (entry && entry.fcAttrition && newPlanWeek.expectedFTE) {
-        newPlanWeek.expectedFTE = newPlanWeek.expectedFTE * (1 - parseFloat(entry.fcAttrition))
-      }
-
-      //Calculations
-      newPlanWeek.billableFTE && (newPlanWeek.billVar = newPlanWeek.totalFTE - newPlanWeek.billableFTE)
-      newPlanWeek.expectedFTE && newPlanWeek.billableFTE && (newPlanWeek.exBillVar = newPlanWeek.expectedFTE - newPlanWeek.billableFTE)
-      newPlanWeek.requiredFTE && (newPlanWeek.reqVar = newPlanWeek.totalFTE - newPlanWeek.requiredFTE)
-      newPlanWeek.expectedFTE && newPlanWeek.requiredFTE && (newPlanWeek.exReqVar = newPlanWeek.expectedFTE - newPlanWeek.requiredFTE)
-
-      current = { ...current, ...newPlanWeek }
-
-      return { week, ...newPlanWeek, entry }
-    })
-
-    console.log(newPlan)
-
-    setCapacity(newPlan)
-
-    let outputHeaders = [...capacityFields]
-
-    let outputData = newPlan.map(weekly =>
-      [weekly.week.code, weekly.week.firstDate.split("T")[0], ...outputHeaders.map(header =>
-        (weekly[header] || weekly[header] === 0) ? Math.round(weekly[header] * 10) / 10 : null
-      )]
-    )
-
-    setOutput({
-      data: {
-        header: ["Week", "First Date", ...outputHeaders],
-        entries: outputData
-      },
-      isConverted: true
-    })
-
-    let entriesHeaders = [...headcountFields, ...trainingFields]
-
-    let entriesData = newPlan.map(weekly =>
-      [weekly.week.code, weekly.week.firstDate.split("T")[0], ...entriesHeaders.map(header =>
-        weekly.entry && (weekly.entry[header] || weekly.entry[header] === 0) ? Math.round(weekly.entry[header] * 10) / 10 : null
-      )]
-    )
-
-    setEntries({
-      data: {
-        header: ["Week", "First Date", ...entriesHeaders],
-        entries: entriesData
-      },
-      isConverted: true
-    })
-
-    let targetForecastHeaders = [...forecastFields, ...targetFields]
-
-    let targetForecastData = newPlan.map(weekly =>
-      [weekly.week.code, weekly.week.firstDate.split("T")[0], ...targetForecastHeaders.map(header =>
-        weekly.entry && (weekly.entry[header] || weekly.entry[header] === 0) ? Math.round(weekly.entry[header] * 100) / 100 : null
-      )]
-    )
-
-    setTargetForecast({
-      data: {
-        header: ["Week", "First Date", ...targetForecastHeaders],
-        entries: targetForecastData
-      },
-      isConverted: true
-    })
-
-
-  }
-
-
 
   return (
     <>
       <Head>
-        <title>Planning Tool</title>
+        <title>Planning App | Capacity</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
@@ -350,41 +83,49 @@ const Capacity = (props) => {
 
             <br />
 
-            <Button onClick={handleGenerate} variant="dark" disabled={!selected.week}>GENERATE CAPACITY</Button>
+            <Button onClick={() => capacity.generate(selected.capPlan, formInfo.toWeek)} variant="dark" disabled={!selected.week}>GENERATE CAPACITY</Button>
 
           </Form>
 
           <br />
-          <Tabs >
+          {capacity.output &&
+            <CapacityViewer data={data} capacity={capacity}></CapacityViewer>
+          }
 
-            <Tab title="Capacity" disabled={!capacity} eventKey="capacity">
-              <br />
-              {output &&
-                <SQLTable input={output} title="Capacity View" />
+          <br />
 
+          {capacity.output &&
 
-              }
+            <Tabs >
 
-            </Tab>
-            <Tab title="Headcount" disabled={!entries} eventKey="entries">
-              <br />
-              {entries &&
-                <SQLTable input={entries} title="Headcount View" />
-              }
-            </Tab>
-            <Tab title="Target + Forecast" disabled={!targetForecast} eventKey="targetForecast">
-              <br />
-              {targetForecast &&
-                <SQLTable input={targetForecast} title="Target + Forecast View" />
-              }
-            </Tab>
+              <Tab title="Capacity" disabled={!capacity.output} eventKey="capacity">
+                <br />
+                {capacity.output &&
+                  <SQLTable input={capacity.getTable(data.fields.filter(field => field.type === "capacity"))} title="Capacity View" />
+                }
 
-          </Tabs>
+              </Tab>
+              <Tab title="Headcount" disabled={!capacity.output} eventKey="entries">
+                <br />
+                {capacity.output &&
+                  <SQLTable input={capacity.getTable(data.fields.filter(field => field.type === "headcount"))} title="Headcount View" />
+                }
+              </Tab>
+              <Tab title="Target + Forecast" disabled={!capacity.output} eventKey="targetForecast">
+                <br />
+                {capacity.output &&
+                  <SQLTable input={capacity.getTable(data.fields.filter(field => field.type === "target" || field.type === "forecast"))} title="Target + Forecast View" />
+                }
+              </Tab>
+
+            </Tabs>
+
+          }
+
 
           <br />
 
 
-          <br />
         </Container>
 
 
@@ -405,8 +146,9 @@ export async function getServerSideProps() {
   const lobs = await db.collection("lobs").find({}).toArray()
   const capPlans = await db.collection("capPlans").find({}).toArray()
   const weeks = await db.collection("weeks").find({}).toArray()
+  const fields = await db.collection("fields").find({}).toArray()
 
-  const props = { isConnected, projects, languages, lobs, weeks, capPlans }
+  const props = { isConnected, projects, languages, lobs, weeks, capPlans, fields }
 
   return {
     props: JSON.parse(JSON.stringify(props))

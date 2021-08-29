@@ -33,3 +33,22 @@ main {
   background-color: black;
   color:white
 }
+
+.sticky-header-2 {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: black;
+}
+
+.sticky-header-1 {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+
+}
+.sticky-horizontal {
+  position: sticky;
+  left: 0;
+  z-index:2;
+}

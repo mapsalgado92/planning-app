@@ -23,7 +23,7 @@ export default function Management(props) {
   return (
     <>
       <Head>
-        <title>Planning Tool</title>
+        <title>Planning App | Management</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -66,8 +66,9 @@ export async function getServerSideProps() {
   const lobs = await db.collection("lobs").find({}).toArray()
   const capPlans = await db.collection("capPlans").find({}).toArray()
   const weeks = await db.collection("weeks").find({}).toArray()
+  const fields = await db.collection("fields").find({}).toArray()
 
-  const props = { isConnected, projects, languages, lobs, weeks, capPlans }
+  const props = { isConnected, projects, languages, lobs, weeks, capPlans, fields }
 
   return {
     props: JSON.parse(JSON.stringify(props))
