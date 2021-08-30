@@ -101,7 +101,7 @@ const Capacity = (props) => {
               <Tab title="Capacity" disabled={!capacity.output} eventKey="capacity">
                 <br />
                 {capacity.output &&
-                  <SQLTable input={capacity.getTable(data.fields.filter(field => field.type === "capacity"))} title="Capacity View" />
+                  <SQLTable input={capacity.getTable(data.fields)} title="Capacity View" />
                 }
 
               </Tab>
