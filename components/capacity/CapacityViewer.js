@@ -1,4 +1,4 @@
-import { OverlayTrigger, Tooltip } from "react-bootstrap"
+import { Badge, OverlayTrigger, Tooltip } from "react-bootstrap"
 
 const CapacityViewer = ({ capacity, data }) => {
   return (
@@ -41,6 +41,7 @@ const CapacityViewer = ({ capacity, data }) => {
           }).code === weekly.week.code ? "bg-warning" : "bg-secondary")}>
             {weekly.week.firstDate.split("T")[0]}
           </h6>
+
           {data.fields && data.fields.sort((a, b) => {
             let sortOrder = {
               capacity: 1,
@@ -57,6 +58,16 @@ const CapacityViewer = ({ capacity, data }) => {
               return 0
             }
           }).map((field, index) => <span className={"border-bottom " + (index % 2 === 0 ? "bg-light " : " ") + ((Math.round(weekly[field.internal] * 100) / 100) > 0 ? "text-primary" : (Math.round(weekly[field.internal] * 100) / 100) < 0 ? "text-danger" : "text-secondary")} key={field.internal + weekly.week.code}>{weekly[field.internal] ? Math.round(weekly[field.internal] * 100) / 100 : weekly[field.internal] === 0 ? 0 : "-"}</span>)}
+          {weekly.Comment && <OverlayTrigger
+            overlay={
+              <Tooltip id="my-tooltip-id">
+                <p style={{ whiteSpace: "break-spaces" }} className="m-0 text-start">{weekly.Comment}</p>
+              </Tooltip>
+            }
+            placement="top"
+          >
+            <Badge className="m-2 bg-danger">( i )</Badge>
+          </OverlayTrigger>}
         </div>)
       }
     </div >

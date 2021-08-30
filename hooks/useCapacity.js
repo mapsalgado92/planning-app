@@ -44,7 +44,7 @@ const useCapacity = (data) => {
       let newPlanWeek = {
         totalHC: current.totalHC,
         totalFTE: current.totalFTE,
-        expectedFTE: current.expectedFTE ? current.expectedFTE : null,
+        expectedFTE: current.expectedFTE ? current.expectedFTE : thisWeek && thisWeek.code === week.code && current.totalFTE,
         billableFTE: current.billableFTE,
         requiredFTE: current.requiredFTE,
         trainees: 0,
@@ -127,9 +127,12 @@ const useCapacity = (data) => {
         } else if (batch.weeksToLive === 1) {
           newPlanWeek.totalHC += trainingTotal
           newPlanWeek.totalFTE += trainingTotal
-          if (current.isFuture && current.fcTrAttrition) {
-            newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += trainingTotal * (1 - current.fcTrAttrition))
+          console.log("FUTURE", trainingTotal, 1 - current.fcTrAttrition, current.isFuture)
+          if (current.isFuture && current.fcTrAttrition && newPlanWeek.expectedFTE) {
+            newPlanWeek.expectedFTE += trainingTotal * (1 - current.fcTrAttrition)
           } else {
+            console.log("THIS HAPPENED", newPlanWeek.expectedFTE)
+
             newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += trainingTotal)
           }
 
@@ -142,14 +145,14 @@ const useCapacity = (data) => {
         }
       })
 
-      if (entry && entry.fcAttrition && newPlanWeek.expectedFTE) {
+      if (entry && entry.fcAttrition && current.isFuture) {
         newPlanWeek.expectedFTE = newPlanWeek.expectedFTE * (1 - parseFloat(entry.fcAttrition))
       }
 
       if (thisWeek && week.code === thisWeek.code) {
         current.isFuture = true
-        newPlanWeek.expectedFTE = current.totalFTE
       }
+
 
       //Calculations
       newPlanWeek.billableFTE && (newPlanWeek.billVar = newPlanWeek.totalFTE - newPlanWeek.billableFTE)
