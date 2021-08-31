@@ -92,7 +92,7 @@ const Capacity = (props) => {
 
           <br />
           {capacity.output &&
-            <CapacityViewer data={data} capacity={capacity}></CapacityViewer>
+            <CapacityViewer data={data} capacity={capacity} outputType={"output"}></CapacityViewer>
           }
 
           <br />

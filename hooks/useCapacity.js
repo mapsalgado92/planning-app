@@ -5,6 +5,7 @@ import useWeeks from "./useWeeks"
 const useCapacity = (data) => {
 
   const [output, setOutput] = useState(null)
+  const [aggOutput, setAggOutput] = useState(null)
 
   let myWeeks = useWeeks(data)
 
@@ -12,7 +13,11 @@ const useCapacity = (data) => {
 
     let entries = await fetch(`api/capEntries/capPlan=${capPlan._id}`).then(data => data.json()).catch()
 
+    console.log("ENTRIES", entries)
+
     let weeks = myWeeks.getWeekRange(capPlan.firstWeek, toWeek)
+
+    console.log("WEEKS", weeks)
 
     const thisWeek = myWeeks.getCurrentWeek()
 
@@ -161,14 +166,50 @@ const useCapacity = (data) => {
       return { ...newPlanWeek, ...entry, week }
     })
 
-    console.log(newPlan)
-
     setOutput(newPlan)
+
+    return newPlan
 
   }
 
-  const aggregate = () => {
+  const aggregate = async (capPlans, fromWeek, toWeek) => {
+    setAggOutput(null)
+    let aggregated = myWeeks.getWeekRange(fromWeek.code, toWeek.code).map(week => { return { week: week } })
 
+    for await (let capPlan of capPlans) {
+      if (myWeeks.getWeekRange(toWeek, capPlan.firstWeek) === []) {
+        console.log("Cap Plan not in Range")
+        return -1
+      } else {
+        let capacity = await generate(capPlan, toWeek.code)
+
+        aggregated = await aggregated.map(agg => {
+          let weekly = capacity.find(weekly => weekly.week.code === agg.week.code)
+          if (weekly) {
+            let newAgg = { ...agg }
+            data.fields.forEach(field => {
+              if (field.aggregatable && weekly[field.internal]) {
+                if (newAgg[field.internal] || newAgg[field.internal] === 0) {
+                  newAgg[field.internal] = parseFloat(newAgg[field.internal]) + parseFloat(weekly[field.internal])
+                } else {
+                  newAgg[field.internal] = parseFloat(weekly[field.internal])
+                }
+              }
+            })
+
+            //attrPercentException
+            if (newAgg.attrition) {
+              newAgg.attrPercent = newAgg.attrition / newAgg.totalHC
+            }
+
+            return newAgg
+          } else {
+            return agg
+          }
+        })
+      }
+    }
+    setAggOutput(aggregated)
   }
 
   const getTable = (fields) => {
@@ -193,7 +234,8 @@ const useCapacity = (data) => {
     generate,
     aggregate,
     getTable,
-    output
+    output,
+    aggOutput
   })
 }
 

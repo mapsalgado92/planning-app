@@ -1,7 +1,7 @@
 import { Badge, OverlayTrigger, Tooltip } from "react-bootstrap"
 import useWeeks from "../../hooks/useWeeks"
 
-const CapacityViewer = ({ capacity, data }) => {
+const CapacityViewer = ({ capacity, data, outputType }) => {
 
   const myWeeks = useWeeks(data)
 
@@ -24,6 +24,12 @@ const CapacityViewer = ({ capacity, data }) => {
           } else {
             return 0
           }
+        }).filter(field => {
+          if (outputType === "output") {
+            return true
+          } else {
+            return field.aggregatable
+          }
         }).map(field => <span className="border-bottom" key={field.internal}>{field.external}
           <OverlayTrigger
             overlay={
@@ -38,7 +44,7 @@ const CapacityViewer = ({ capacity, data }) => {
         </span>)}
       </div>
       {
-        capacity.output && capacity.output.map(weekly => <div key={weekly.week.code} className="d-flex flex-column">
+        capacity[outputType] && capacity[outputType].map(weekly => <div key={weekly.week.code} className="d-flex flex-column">
           <h6 className={"sticky-header-1 text-white border-end border-dark py-1 px-2 p-sticky mb-0 " + (myWeeks.getCurrentWeek().code === weekly.week.code ? "bg-danger" : "bg-dark")}>
             {weekly.week.firstDate.split("T")[0]}
           </h6>
@@ -58,6 +64,12 @@ const CapacityViewer = ({ capacity, data }) => {
                 return -1
               } else {
                 return 0
+              }
+            }).filter(field => {
+              if (outputType === "output") {
+                return true
+              } else {
+                return field.aggregatable
               }
             }).map((field, index) => <span className={"border-bottom border-light " + (index % 2 === 0 ? "bg-light " : " ") + ((Math.round(weekly[field.internal] * 100) / 100) > 0 ? "text-primary" : (Math.round(weekly[field.internal] * 100) / 100) < 0 ? "text-danger" : "text-secondary")} key={field.internal + weekly.week.code}>{weekly[field.internal] ? Math.round(weekly[field.internal] * 100) / 100 : weekly[field.internal] === 0 ? 0 : "-"}</span>)
           }

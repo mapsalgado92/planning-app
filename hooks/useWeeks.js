@@ -9,7 +9,6 @@ const useWeeks = (data) => {
   }
 
   const getWeek = ({ value, type }) => {
-    console.log("WEEK", data.weeks.find(week => week[type] === value))
     return data.weeks.find(week => week[type] === value)
   }
 
