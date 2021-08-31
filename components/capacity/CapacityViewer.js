@@ -1,6 +1,10 @@
 import { Badge, OverlayTrigger, Tooltip } from "react-bootstrap"
+import useWeeks from "../../hooks/useWeeks"
 
 const CapacityViewer = ({ capacity, data }) => {
+
+  const myWeeks = useWeeks(data)
+
   return (
     <div style={{ overflowX: "scroll" }} className="d-flex flex-row text-nowrap text-center w-100 ">
       <div className="d-flex flex-column bg-white sticky-horizontal border-end  border-dark text-end">
@@ -20,7 +24,7 @@ const CapacityViewer = ({ capacity, data }) => {
           } else {
             return 0
           }
-        }).map(field => <span className={field.type === "capacity" ? "text-danger border-bottom" : "border-bottom"} key={field.internal}>{field.external}
+        }).map(field => <span className="border-bottom" key={field.internal}>{field.external}
           <OverlayTrigger
             overlay={
               <Tooltip>
@@ -29,45 +33,47 @@ const CapacityViewer = ({ capacity, data }) => {
             }
             placement="right"
           >
-            <span className="mx-2">( i )</span>
+            <span className={"mx-2 " + (field.type === "capacity" ? " text-danger" : "")}><i className="fa fa-info-circle"></i></span>
           </OverlayTrigger>
         </span>)}
       </div>
       {
         capacity.output && capacity.output.map(weekly => <div key={weekly.week.code} className="d-flex flex-column">
-          <h6 className={"sticky-header-1 text-white border-end border-dark py-1 px-2 p-sticky mb-0 " + (data.weeks.find(week => {
-            let today = new Date()
-            return week.firstDate > today.toISOString()
-          }).code === weekly.week.code ? "bg-danger" : "bg-dark")}>
+          <h6 className={"sticky-header-1 text-white border-end border-dark py-1 px-2 p-sticky mb-0 " + (myWeeks.getCurrentWeek().code === weekly.week.code ? "bg-danger" : "bg-dark")}>
             {weekly.week.firstDate.split("T")[0]}
           </h6>
 
-          {data.fields && data.fields.sort((a, b) => {
-            let sortOrder = {
-              capacity: 1,
-              headcount: 2,
-              training: 3,
-              target: 4,
-              forecast: 5
-            }
-            if (sortOrder[a.type] > sortOrder[b.type]) {
-              return 1
-            } else if (sortOrder[a.type] < sortOrder[b.type]) {
-              return -1
-            } else {
-              return 0
-            }
-          }).map((field, index) => <span className={"border-bottom border-light " + (index % 2 === 0 ? "bg-light " : " ") + ((Math.round(weekly[field.internal] * 100) / 100) > 0 ? "text-primary" : (Math.round(weekly[field.internal] * 100) / 100) < 0 ? "text-danger" : "text-secondary")} key={field.internal + weekly.week.code}>{weekly[field.internal] ? Math.round(weekly[field.internal] * 100) / 100 : weekly[field.internal] === 0 ? 0 : "-"}</span>)}
-          {weekly.Comment && <OverlayTrigger
-            overlay={
-              <Tooltip>
-                <p style={{ whiteSpace: "break-spaces" }} className="m-0 text-start">{weekly.Comment}</p>
-              </Tooltip>
-            }
-            placement="top"
-          >
-            <Badge className="m-2 bg-danger">( i )</Badge>
-          </OverlayTrigger>}
+          {
+            data.fields && data.fields.sort((a, b) => {
+              let sortOrder = {
+                capacity: 1,
+                headcount: 2,
+                training: 3,
+                target: 4,
+                forecast: 5
+              }
+              if (sortOrder[a.type] > sortOrder[b.type]) {
+                return 1
+              } else if (sortOrder[a.type] < sortOrder[b.type]) {
+                return -1
+              } else {
+                return 0
+              }
+            }).map((field, index) => <span className={"border-bottom border-light " + (index % 2 === 0 ? "bg-light " : " ") + ((Math.round(weekly[field.internal] * 100) / 100) > 0 ? "text-primary" : (Math.round(weekly[field.internal] * 100) / 100) < 0 ? "text-danger" : "text-secondary")} key={field.internal + weekly.week.code}>{weekly[field.internal] ? Math.round(weekly[field.internal] * 100) / 100 : weekly[field.internal] === 0 ? 0 : "-"}</span>)
+          }
+          {
+            weekly.Comment && <OverlayTrigger
+              overlay={
+                <Tooltip>
+                  <p style={{ whiteSpace: "break-spaces" }} className="m-0 text-start">{weekly.Comment}</p>
+                </Tooltip>
+              }
+              placement="top"
+            >
+              <Badge className="bg-danger w-50 my-1 mx-auto"><i className="fa fa-exclamation-circle"></i></Badge>
+
+            </OverlayTrigger>
+          }
         </div>)
       }
     </div >

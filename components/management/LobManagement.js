@@ -83,7 +83,7 @@ const LobManagement = ({ data, refresh }) => {
         <Tab eventKey="new" title="new">
           <Form>
             <Form.Label as="h5" className="mt-4">Selection</Form.Label>
-            <DropdownButton title={selected.project ? selected.project.name : "Select a Project"} disabled={data.projects.length === 0}>
+            <DropdownButton size="sm" title={selected.project ? selected.project.name : "Select a Project"} disabled={data.projects.length === 0}>
               <ListGroup variant="flush">
                 {data.projects && data.projects.map(project =>
                   <ListGroup.Item key={project._id} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(project, "project") }}>
@@ -101,7 +101,7 @@ const LobManagement = ({ data, refresh }) => {
 
             <br />
 
-            <Button variant="outline-success" disabled={!selected.project} onClick={handleAddLOB}>ADD LOB</Button>
+            <Button size="sm" variant="outline-success" disabled={!selected.project} onClick={handleAddLOB}>ADD LOB</Button>
 
           </Form>
         </Tab>
@@ -109,7 +109,7 @@ const LobManagement = ({ data, refresh }) => {
           <Form>
             <Form.Label as="h5" className="mt-4">Selection</Form.Label>
             <InputGroup>
-              <DropdownButton className="me-2" title={selected.project ? selected.project.name : "Select a Project"} disabled={data.projects === 0}>
+              <DropdownButton size="sm" className="me-2" title={selected.project ? selected.project.name : "Select a Project"} disabled={data.projects === 0}>
                 <ListGroup variant="flush">
                   {data.projects && data.projects.map(project =>
                     <ListGroup.Item key={project._id} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(project) }}>
@@ -119,7 +119,7 @@ const LobManagement = ({ data, refresh }) => {
               </DropdownButton>
 
 
-              <DropdownButton title={selected.lob ? selected.lob.name : "Select a LOB"} disabled={!selected.project}>
+              <DropdownButton size="sm" title={selected.lob ? selected.lob.name : "Select a LOB"} disabled={!selected.project}>
                 <ListGroup variant="flush">
                   {selected.project && data.lobs.filter(lob => lob.project === selected.project._id) && data.lobs.filter(lob => lob.project === selected.project._id).map(lob =>
                     <ListGroup.Item key={lob._id} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(lob, "lob") }}>
@@ -152,13 +152,13 @@ const LobManagement = ({ data, refresh }) => {
 
             <br></br>
 
-            <Button variant="outline-success" disabled={!selected.lob} onClick={handleEditLOB}>UPDATE LOB</Button>
+            <Button size="sm" variant="outline-success" disabled={!selected.lob} onClick={handleEditLOB}>UPDATE LOB</Button>
 
           </Form>
         </Tab>
 
       </Tabs>
-
+      <br></br>
     </div>
   )
 }

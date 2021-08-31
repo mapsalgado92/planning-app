@@ -115,7 +115,7 @@ const CapManagement = ({ data, refresh }) => {
             <Form.Label as="h5" className="mt-4">Selection</Form.Label>
             <InputGroup>
 
-              <DropdownButton className="me-2" title={selected.project ? selected.project.name : "Select a Project"} disabled={data.projects === 0}>
+              <DropdownButton size="sm" className="me-2" title={selected.project ? selected.project.name : "Select a Project"} disabled={data.projects === 0}>
                 <ListGroup variant="flush">
                   {data.projects && data.projects.map(project =>
                     <ListGroup.Item key={project._id} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(project, "project") }}>
@@ -125,7 +125,7 @@ const CapManagement = ({ data, refresh }) => {
               </DropdownButton>
 
 
-              <DropdownButton title={selected.lob ? selected.lob.name : "Select a LOB"} disabled={!selected.project}>
+              <DropdownButton size="sm" title={selected.lob ? selected.lob.name : "Select a LOB"} disabled={!selected.project}>
                 <ListGroup variant="flush">
                   {selected.project && data.lobs.filter(lob => lob.project === selected.project._id) && data.lobs.filter(lob => lob.project === selected.project._id).map(lob =>
                     <ListGroup.Item key={lob._id} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(lob, "lob") }}>
@@ -136,7 +136,7 @@ const CapManagement = ({ data, refresh }) => {
 
             </InputGroup>
             <Form.Label as="h5" className="mt-4">Language</Form.Label>
-            <DropdownButton className="me-2" title={selected.language ? selected.language.name : "Select a Language"} disabled={data.languages === 0}>
+            <DropdownButton size="sm" className="me-2" title={selected.language ? selected.language.name : "Select a Language"} disabled={data.languages === 0}>
               <ListGroup variant="flush">
                 {data.languages && data.languages.map(language =>
                   <ListGroup.Item key={language._id} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(language, "language") }}>
@@ -156,7 +156,7 @@ const CapManagement = ({ data, refresh }) => {
 
             <br />
 
-            <Button variant="outline-success" onClick={handleAddCapPlan} disabled={!(selected.lob && selected.language)}>ADD CAPACITY PLAN</Button>
+            <Button size="sm" variant="outline-success" onClick={handleAddCapPlan} disabled={!(selected.lob && selected.language)}>ADD CAPACITY PLAN</Button>
 
           </Form>
 
@@ -167,7 +167,7 @@ const CapManagement = ({ data, refresh }) => {
             <Form.Label as="h5" className="mt-4">Selection</Form.Label>
             <InputGroup>
 
-              <DropdownButton className="me-2" title={selected.project ? selected.project.name : "Select a Project"} disabled={data.projects === 0}>
+              <DropdownButton size="sm" className="me-2" title={selected.project ? selected.project.name : "Select a Project"} disabled={data.projects === 0}>
                 <ListGroup variant="flush">
                   {data.projects && data.projects.map(project =>
                     <ListGroup.Item key={project._id} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(project, "project") }}>
@@ -177,7 +177,7 @@ const CapManagement = ({ data, refresh }) => {
               </DropdownButton>
 
 
-              <DropdownButton className="me-2" title={selected.lob ? selected.lob.name : "Select a LOB"} disabled={!selected.project}>
+              <DropdownButton size="sm" className="me-2" title={selected.lob ? selected.lob.name : "Select a LOB"} disabled={!selected.project}>
                 <ListGroup variant="flush">
                   {selected.project && data.lobs.filter(lob => lob.project === selected.project._id) && data.lobs.filter(lob => lob.project === selected.project._id).map(lob =>
                     <ListGroup.Item key={lob._id} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(lob, "lob") }}>
@@ -186,7 +186,7 @@ const CapManagement = ({ data, refresh }) => {
                 </ListGroup>
               </DropdownButton>
 
-              <DropdownButton className="me-2" title={selected.capPlan ? selected.capPlan.name : "Select a Capacity Plan"} disabled={!selected.lob}>
+              <DropdownButton size="sm" className="me-2" title={selected.capPlan ? selected.capPlan.name : "Select a Capacity Plan"} disabled={!selected.lob}>
                 <ListGroup variant="flush">
                   {selected.lob && data.capPlans.filter(capPlan => capPlan.lob === selected.lob._id) && data.capPlans.filter(capPlan => capPlan.lob === selected.lob._id).map(capPlan =>
                     <ListGroup.Item key={capPlan._id} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(capPlan, "capPlan") }}>
@@ -224,12 +224,13 @@ const CapManagement = ({ data, refresh }) => {
 
           <br />
 
-          <Button variant="outline-success" onClick={handleEditCapPlan} disabled={!selected.capPlan}>UPDATE CAPACITY PLAN</Button>
+          <Button size="sm" variant="outline-success" onClick={handleEditCapPlan} disabled={!selected.capPlan}>UPDATE CAPACITY PLAN</Button>
 
 
         </Tab>
 
       </Tabs>
+      <br></br>
     </div >
   )
 }

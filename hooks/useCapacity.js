@@ -1,23 +1,22 @@
 import { useState } from "react"
+import useWeeks from "./useWeeks"
+
 
 const useCapacity = (data) => {
 
   const [output, setOutput] = useState(null)
 
+  let myWeeks = useWeeks(data)
+
   const generate = async (capPlan, toWeek) => {
 
     let entries = await fetch(`api/capEntries/capPlan=${capPlan._id}`).then(data => data.json()).catch()
 
-    let weeks = data.weeks.slice(data.weeks.indexOf(data.weeks.find(week => week.code === capPlan.firstWeek)), 1 + data.weeks.indexOf(data.weeks.find(week => week.code === toWeek)))
+    let weeks = myWeeks.getWeekRange(capPlan.firstWeek, toWeek)
 
-    console.log("CAPACITY ENTRIES", entries)
+    const thisWeek = myWeeks.getCurrentWeek()
 
-    let today = new Date()
 
-    const thisWeek = weeks.find(week => {
-      return week.firstDate > today.toISOString()
-    }
-    )
 
     //GENERATE CURRENT
     let current = {
@@ -127,12 +126,9 @@ const useCapacity = (data) => {
         } else if (batch.weeksToLive === 1) {
           newPlanWeek.totalHC += trainingTotal
           newPlanWeek.totalFTE += trainingTotal
-          console.log("FUTURE", trainingTotal, 1 - current.fcTrAttrition, current.isFuture)
           if (current.isFuture && current.fcTrAttrition && newPlanWeek.expectedFTE) {
             newPlanWeek.expectedFTE += trainingTotal * (1 - current.fcTrAttrition)
           } else {
-            console.log("THIS HAPPENED", newPlanWeek.expectedFTE)
-
             newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += trainingTotal)
           }
 

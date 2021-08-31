@@ -42,6 +42,12 @@ const Entries = (props) => {
     "fcRequirements"
   ]
 
+  const actualFields = [
+    "Volumes",
+    "AHT",
+    "Requirements"
+  ]
+
   const handleChange = (e, field, changeConfig) => {
     if (!changeConfig) {
       setFormInfo({ ...formInfo, [field]: e.target.value })
@@ -116,12 +122,12 @@ const Entries = (props) => {
       </Head>
       <main>
         <Container className="mt-4">
-          <h1>Entries</h1>
+          <h2 className="text-center text-danger">Entries</h2>
 
           <Form>
             <Form.Label as="h4">Selection</Form.Label>
             <InputGroup>
-              <DropdownButton className="me-2" title={selected.project ? selected.project.name : "Select a Project"} disabled={data.projects === 0}>
+              <DropdownButton size="sm" className="me-2" title={selected.project ? selected.project.name : "Select a Project"} disabled={data.projects === 0}>
                 <ListGroup variant="flush">
                   {data.projects && data.projects.map(project =>
                     <ListGroup.Item key={project._id} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(project, "project") }}>
@@ -131,7 +137,7 @@ const Entries = (props) => {
               </DropdownButton>
 
 
-              <DropdownButton className="me-2" title={selected.lob ? selected.lob.name : "Select a LOB"} disabled={!selected.project}>
+              <DropdownButton size="sm" className="me-2" title={selected.lob ? selected.lob.name : "Select a LOB"} disabled={!selected.project}>
                 <ListGroup variant="flush">
                   {selected.project && data.lobs.filter(lob => lob.project === selected.project._id) && data.lobs.filter(lob => lob.project === selected.project._id).map(lob =>
                     <ListGroup.Item key={lob._id} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(lob, "lob") }}>
@@ -140,7 +146,7 @@ const Entries = (props) => {
                 </ListGroup>
               </DropdownButton>
 
-              <DropdownButton className="me-2" title={selected.capPlan ? selected.capPlan.name : "Select a Capacity Plan"} disabled={!selected.lob}>
+              <DropdownButton size="sm" className="me-2" title={selected.capPlan ? selected.capPlan.name : "Select a Capacity Plan"} disabled={!selected.lob}>
                 <ListGroup variant="flush">
                   {selected.lob && data.capPlans.filter(capPlan => capPlan.lob === selected.lob._id) && data.capPlans.filter(capPlan => capPlan.lob === selected.lob._id).map(capPlan =>
                     <ListGroup.Item key={capPlan._id} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(capPlan, "capPlan") }}>
@@ -152,7 +158,7 @@ const Entries = (props) => {
 
             <br />
 
-            <DropdownButton variant="danger" className="me-2" title={selected.week ? selected.week.code + " - " + selected.week.firstDate.split("T")[0] : "Select a Week"} disabled={!selected.capPlan}>
+            <DropdownButton size="sm" variant="danger" className="me-2" title={selected.week ? selected.week.code + " - " + selected.week.firstDate.split("T")[0] : "Select a Week"} disabled={!selected.capPlan}>
               <ListGroup variant="flush">
                 {selected.capPlan && data.weeks.slice(data.weeks.indexOf(data.weeks.find(week => week.code === selected.capPlan.firstWeek))) && data.weeks.slice(data.weeks.indexOf(data.weeks.find(week => week.code === selected.capPlan.firstWeek))).map(week =>
                   <ListGroup.Item key={week._id} action className="rounded-0 flush" variant={(selected.week && week.code === selected.week.code) ? "warning" : "light"} onClick={(e) => { e.preventDefault(); handleSelect(week, "week") }}>
@@ -165,19 +171,19 @@ const Entries = (props) => {
 
             <Row>
               <Form.Label as="h4">Headcount</Form.Label>
-              {headcountFields.map(field => <Col key={`Col-${field}`} sm={6} md={4} lg={3}>
+              {headcountFields.map(field => <Col key={`Col-${field}`} sm={4} md={3} lg={2}>
                 <Form.Label as="h5">{field}</Form.Label>
-                <InputGroup>
+                <InputGroup size="sm">
                   <Form.Control
                     readOnly={true}
-                    className="ms-1"
-                    placeholder={field}
+
                     aria-label={field}
                     value={(entry && entry[field]) || "none"}
+
                   />
                   <Form.Control
-                    className={"ms-1 " + (formInfo[field] ? "border-danger" : "")}
-                    placeholder={field}
+                    className={"ms-1" + (formInfo[field] ? "border-danger" : "")}
+
                     aria-label={field}
                     value={formInfo[field] || ""}
                     disabled={!selected.week}
@@ -189,19 +195,19 @@ const Entries = (props) => {
             <br></br>
             <Row>
               <Form.Label as="h4">Training</Form.Label>
-              {trainingFields.map(field => <Col key={`Col-${field}`} sm={6} md={4} lg={3}>
+              {trainingFields.map(field => <Col key={`Col-${field}`} sm={4} md={3} lg={2}>
                 <Form.Label as="h5">{field}</Form.Label>
-                <InputGroup>
+                <InputGroup size="sm">
                   <Form.Control
                     readOnly={true}
                     className="ms-1"
-                    placeholder={field}
+
                     aria-label={field}
                     value={(entry && entry[field]) || "none"}
                   />
                   <Form.Control
                     className={"ms-1 " + (formInfo[field] ? "border-danger" : "")}
-                    placeholder={field}
+
                     aria-label={field}
                     value={formInfo[field] || ""}
                     disabled={!selected.week}
@@ -213,19 +219,19 @@ const Entries = (props) => {
             <br></br>
             <Row>
               <Form.Label as="h4">Target</Form.Label>
-              {targetFields.map(field => <Col key={`Col-${field}`} sm={6} md={4} lg={3}>
+              {targetFields.map(field => <Col key={`Col-${field}`} sm={4} md={3} lg={2}>
                 <Form.Label as="h5">{field}</Form.Label>
-                <InputGroup>
+                <InputGroup size="sm">
                   <Form.Control
                     readOnly={true}
                     className="ms-1"
-                    placeholder={field}
+
                     aria-label={field}
                     value={(entry && entry[field]) || "none"}
                   />
                   <Form.Control
                     className={"ms-1 " + (formInfo[field] ? "border-danger" : "")}
-                    placeholder={field}
+
                     aria-label={field}
                     value={formInfo[field] || ""}
                     disabled={!selected.week}
@@ -237,19 +243,43 @@ const Entries = (props) => {
             <br></br>
             <Row>
               <Form.Label as="h4">Forecast</Form.Label>
-              {forecastFields.map(field => <Col key={`Col-${field}`} sm={6} md={4} lg={3}>
+              {forecastFields.map(field => <Col key={`Col-${field}`} sm={4} md={3} lg={2}>
                 <Form.Label as="h5">{field}</Form.Label>
-                <InputGroup>
+                <InputGroup size="sm">
                   <Form.Control
                     readOnly={true}
                     className="ms-1"
-                    placeholder={field}
+
                     aria-label={field}
                     value={(entry && entry[field]) || "none"}
                   />
                   <Form.Control
                     className={"ms-1 " + (formInfo[field] ? "border-danger" : "")}
-                    placeholder={field}
+
+                    aria-label={field}
+                    value={formInfo[field] || ""}
+                    disabled={!selected.week}
+                    onChange={(e) => handleChange(e, field)}
+                  />
+                </InputGroup>
+              </Col>)}
+            </Row>
+            <br></br>
+            <Row>
+              <Form.Label as="h4">Actuals</Form.Label>
+              {actualFields.map(field => <Col key={`Col-${field}`} sm={4} md={3} lg={2}>
+                <Form.Label as="h5">{field}</Form.Label>
+                <InputGroup size="sm">
+                  <Form.Control
+                    readOnly={true}
+                    className="ms-1"
+
+                    aria-label={field}
+                    value={(entry && entry[field]) || "none"}
+                  />
+                  <Form.Control
+                    className={"ms-1 " + (formInfo[field] ? "border-danger" : "")}
+
                     aria-label={field}
                     value={formInfo[field] || ""}
                     disabled={!selected.week}
@@ -262,12 +292,12 @@ const Entries = (props) => {
             <Row>
               <Form.Label as="h4">Comment</Form.Label>
               <Col key={`Col-Comment`}>
-                <InputGroup>
+                <InputGroup size="sm">
                   <Form.Control
                     readOnly={true}
                     className="ms-1"
                     as="textarea"
-                    rows={4}
+                    rows={5}
                     placeholder={"Comment"}
                     aria-label={"Comment"}
                     value={(entry && entry["Comment"]) || "none"}
@@ -275,7 +305,7 @@ const Entries = (props) => {
                   <Form.Control
                     className={"ms-1 " + (formInfo["Comment"] ? "border-danger" : "")}
                     as="textarea"
-                    rows={4}
+                    rows={5}
                     placeholder={"Comment"}
                     aria-label={"Comment"}
                     value={formInfo["Comment"] || ""}
@@ -290,7 +320,7 @@ const Entries = (props) => {
 
             <Row>
               <Col>
-                <Button className="w-100" onClick={handleSubmit}>Submit</Button>
+                <Button size="sm" className="w-100" onClick={handleSubmit}>Submit</Button>
               </Col>
             </Row>
 

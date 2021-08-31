@@ -87,14 +87,14 @@ const ProjectManagement = ({ data, refresh }) => {
               onChange={(e) => handleChange(e, "projectName")}
             />
             <br />
-            <Button variant="outline-success" onClick={handleAddProject}>ADD PROJECT</Button>
+            <Button size="sm" variant="outline-success" onClick={handleAddProject}>ADD PROJECT</Button>
 
           </Form>
         </Tab>
         <Tab eventKey="edit" title="edit">
           <Form>
             <Form.Label as="h5" className="mt-4">Selection</Form.Label>
-            <DropdownButton title={selected.project ? selected.project.name : "Select a Project"} disabled={data.projects === 0}>
+            <DropdownButton size="sm" title={selected.project ? selected.project.name : "Select a Project"} disabled={data.projects === 0}>
               <ListGroup variant="flush">
                 {data.projects && data.projects.map(project =>
                   <ListGroup.Item key={project._id} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(project) }}>
@@ -115,10 +115,11 @@ const ProjectManagement = ({ data, refresh }) => {
               <DatePicker style={{ zIndex: 999 }} placeholderText="Start Date" selected={formInfo.startDate} onChange={(date) => setFormInfo({ ...formInfo, startDate: date })}></DatePicker>
             </InputGroup>
             <br></br>
-            <Button variant="outline-success" disabled={!selected.project} onClick={handleEditProject}>UPDATE PROJECT</Button>
+            <Button size="sm" variant="outline-success" disabled={!selected.project} onClick={handleEditProject}>UPDATE PROJECT</Button>
           </Form>
         </Tab>
       </Tabs>
+      <br></br>
     </div>
   )
 }
