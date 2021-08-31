@@ -21,6 +21,9 @@ const Header = () => {
           <li className="nav-item">
             <Link href="/capacity" ><a className="nav-link mx-3 border-bottom" >Capacity</a></Link>
           </li>
+          <li className="nav-item">
+            <Link href="/aggregate" ><a className="nav-link mx-3 border-bottom" >Aggregate</a></Link>
+          </li>
         </ul>
       </div>
     </nav>

@@ -1,11 +1,13 @@
 import { Badge, OverlayTrigger, Tooltip } from "react-bootstrap"
 import useWeeks from "../../hooks/useWeeks"
 
-const CapacityViewer = ({ capacity, data, outputType }) => {
+const CapacityViewer = ({ capacity, data, outputType, title }) => {
 
   const myWeeks = useWeeks(data)
 
-  return (
+  return (<>
+    <span className="h3">{title ? title : "DATA VIEWER"}
+    </span>
     <div style={{ overflowX: "scroll" }} className="d-flex flex-row text-nowrap text-center w-100 ">
       <div className="d-flex flex-column bg-white sticky-horizontal border-end  border-dark text-end">
         <h6 className="sticky-header-2 bg-primary text-white text-center mb-0 py-1 px-2">Field</h6>
@@ -89,6 +91,7 @@ const CapacityViewer = ({ capacity, data, outputType }) => {
         </div>)
       }
     </div >
+  </>
   )
 }
 

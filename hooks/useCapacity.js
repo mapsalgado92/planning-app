@@ -230,10 +230,30 @@ const useCapacity = (data) => {
     })
   }
 
+  const getAggregatedTable = (fields) => {
+    let headers = fields.map(field => field.internal)
+
+    let tableData = aggOutput.map(weekly =>
+      [weekly.week.code, weekly.week.firstDate.split("T")[0], ...headers.map(header =>
+        (weekly[header] || weekly[header] === 0) ? Math.round(weekly[header] * 100) / 100 : null
+      )]
+    )
+
+    return ({
+      data: {
+        header: ["Week", "First Date", ...fields.map(field => field.external)],
+        entries: tableData
+      },
+
+      isConverted: true
+    })
+  }
+
   return ({
     generate,
     aggregate,
     getTable,
+    getAggregatedTable,
     output,
     aggOutput
   })

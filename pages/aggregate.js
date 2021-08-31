@@ -6,10 +6,11 @@ import { connectToDatabase } from '../lib/mongodb'
 import useCapacity from '../hooks/useCapacity'
 import CapacityViewer from '../components/capacity/CapacityViewer'
 import useWeeks from '../hooks/useWeeks'
+import SQLTable from '../components/capacity/SQLTable'
 
 const Aggregate = (props) => {
   const [data, setData] = useState(props)
-  const [selected, setSelected] = useState({})
+  const [selected, setSelected] = useState({ languages: [] })
   const [formInfo, setFormInfo] = useState({})
   const capacity = useCapacity(data)
   const myWeeks = useWeeks(data)
@@ -17,7 +18,7 @@ const Aggregate = (props) => {
   const handleSelect = async (item, type) => {
 
     if (type === "project") {
-      setSelected({ project: item, lob: null, capPlan: null, week: null })
+      setSelected({ ...selected, project: item, lob: null, capPlan: null, week: null })
     } else if (type === "lob") {
       setSelected({ ...selected, lob: item, capPlan: null, week: null })
     } else if (type === "capPlan") {
@@ -34,6 +35,14 @@ const Aggregate = (props) => {
       } else {
         setSelected({ ...selected, toWeek: item })
       }
+    } else if (type === "language") {
+      let newLanguages = [...selected.languages]
+      if (newLanguages.includes(item)) {
+        newLanguages = newLanguages.filter(language => language !== item)
+      } else {
+        newLanguages.push(item)
+      }
+      setSelected({ ...selected, languages: newLanguages })
     }
   }
 
@@ -60,7 +69,7 @@ const Aggregate = (props) => {
       })
     }
 
-    if (selectedLanguages) {
+    if (selectedLanguages && selectedLanguages.length > 0) {
       selectedCapPlans = selectedCapPlans.filter(capPlan => {
         if (selectedLanguages.find(language => capPlan.language === language._id)) {
           return true
@@ -84,7 +93,9 @@ const Aggregate = (props) => {
         <Container className="mt-4">
           <h2 className="text-center text-danger">Aggregate</h2>
           <Form>
+            <Form.Label as="h4">Selection by Project</Form.Label>
             <InputGroup>
+
               <DropdownButton size="sm" className="me-2" title={selected.project ? selected.project.name : "All Projects"} disabled={data.projects === 0}>
                 <ListGroup.Item key={"all-projecs"} action className="rounded-0 flush" onClick={(e) => { e.preventDefault(); handleSelect(null, "project") }}>
                   {"All Projects"}
@@ -111,10 +122,30 @@ const Aggregate = (props) => {
                 </ListGroup>
               </DropdownButton>
             </InputGroup>
+            <br></br>
+
+            <Form.Label as="h4">Selection by Language</Form.Label>
+
+
+            {data.languages && data.languages.sort((a, b) => {
+              if (a.name > b.name) {
+                return 1
+              } else if (a.name < b.name) {
+                return -1
+              } else {
+                return 0
+              }
+            }).map(language =>
+              <Button key={language._id} variant={selected.languages && selected.languages.includes(language) ? "primary" : "outline-primary"} size="sm" className="m-1" onClick={(e) => { e.preventDefault(); handleSelect(language, "language") }}>
+                {language.name}
+              </Button>
+            )}
+
 
             <br></br>
+            <br></br>
             <InputGroup>
-              <div>
+              <div className="me-4">
                 <Form.Label as="h4">From Week</Form.Label>
                 <DropdownButton size="sm" variant="danger" className="me-2" title={selected.fromWeek ? selected.fromWeek.code + " - " + selected.fromWeek.firstDate.split("T")[0] : "Select a Week"}>
                   <ListGroup variant="flush" >
@@ -124,6 +155,7 @@ const Aggregate = (props) => {
                       </ListGroup.Item>)}
                   </ListGroup>
                 </DropdownButton>
+
               </div>
               <br />
               <div>
@@ -146,7 +178,11 @@ const Aggregate = (props) => {
 
           <br></br>
 
-          {capacity.output && <CapacityViewer capacity={capacity} data={data} outputType={"aggOutput"}></CapacityViewer>}
+          {capacity.aggOutput && <CapacityViewer capacity={capacity} data={data} outputType={"aggOutput"}></CapacityViewer>}
+
+          <br></br>
+
+          {capacity.aggOutput && <SQLTable input={capacity.getAggregatedTable(data.fields.filter(field => field.aggregatable))} title="Table View" />}
 
           <br></br>
 
