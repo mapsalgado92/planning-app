@@ -6,6 +6,8 @@ const useCapacity = (data) => {
 
   const [output, setOutput] = useState(null)
   const [aggOutput, setAggOutput] = useState(null)
+  const [aggTotals, setAggTotals] = useState(null)
+  const [status, setStatus] = useState(null)
 
   let myWeeks = useWeeks(data)
 
@@ -174,6 +176,7 @@ const useCapacity = (data) => {
 
   const aggregate = async (capPlans, fromWeek, toWeek) => {
     setAggOutput(null)
+    setStatus("Aggregating...")
     let aggregated = myWeeks.getWeekRange(fromWeek.code, toWeek.code).map(week => { return { week: week } })
 
     for await (let capPlan of capPlans) {
@@ -209,7 +212,67 @@ const useCapacity = (data) => {
         })
       }
     }
+
+    //SUMS AND AVERAGES
+
+    let sumFields = data.fields.filter(field => field.aggSum)
+    let averageFields = data.fields.filter(field => field.aggAverage)
+
+    //Build Sums and Average arrays
+
+    let sums = sumFields ? sumFields.map(field => {
+      let newTotal = 0
+
+      for (let i = 0; i < aggregated.length; i++) {
+        newTotal += aggregated[i][field.internal] || 0
+      }
+
+      return { field, value: newTotal }
+    }) : []
+
+    console.log("SUMS", sums)
+
+    let averages = averageFields ? averageFields.map(field => {
+      let newTotal = 0
+
+      for (let i = 0; i < aggregated.length; i++) {
+        newTotal += aggregated[i][field.internal] || 0
+      }
+
+      return { field, value: newTotal / aggregated.length }
+    }) : []
+
+    console.log("AVERAGES", averages)
+
+    //Special Case attrition %
+
+    let attritionSum = sums.find(sum => sum.field.internal === "attrition")
+
+    let totalHCAvg = averages.find(avg => avg.field.internal === "totalHC")
+
+    let attritionRate = { field: data.fields.find(field => field.internal === "attrPercent"), value: null }
+
+    if (attritionSum && totalHCAvg) {
+      attritionRate.value = attritionSum.value / totalHCAvg.value
+    }
+
+    console.log("ATTR RATE", attritionRate.value * 100, "%")
+
+    //Special Case Training Attrition %
+
+    let trAttritionRate = {
+      field: {
+        internal: "trAttritionRate",
+        external: "Tr. Attrition Rate",
+        _id: "trAttrition-id"
+      },
+      value: sums.find(sum => sum.field.internal === "trAttrition").value / (sums.find(sum => sum.field.internal === "trCommit").value + sums.find(sum => sum.field.internal === "trGap").value)
+    }
+
+
+    setAggTotals({ sums, averages, calculated: [attritionRate, trAttritionRate] })
     setAggOutput(aggregated)
+    setStatus(null)
   }
 
   const getTable = (fields) => {
@@ -254,8 +317,10 @@ const useCapacity = (data) => {
     aggregate,
     getTable,
     getAggregatedTable,
+    aggTotals,
     output,
-    aggOutput
+    aggOutput,
+    status
   })
 }
 

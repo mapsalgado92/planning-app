@@ -1,17 +1,17 @@
 
 import Head from 'next/head'
 import { useState } from 'react'
-import { ListGroup, Button, Container, Form, DropdownButton, InputGroup, Tabs, Tab } from 'react-bootstrap'
+import { ListGroup, Button, Container, Form, DropdownButton, InputGroup, Tabs, Tab, Spinner } from 'react-bootstrap'
 import { connectToDatabase } from '../lib/mongodb'
 import useCapacity from '../hooks/useCapacity'
 import CapacityViewer from '../components/capacity/CapacityViewer'
 import useWeeks from '../hooks/useWeeks'
 import SQLTable from '../components/capacity/SQLTable'
+import AggregatedTotals from '../components/capacity/AggregatedTotals'
 
 const Aggregate = (props) => {
   const [data, setData] = useState(props)
   const [selected, setSelected] = useState({ languages: [] })
-  const [formInfo, setFormInfo] = useState({})
   const capacity = useCapacity(data)
   const myWeeks = useWeeks(data)
 
@@ -177,9 +177,16 @@ const Aggregate = (props) => {
           </Form>
 
           <br></br>
+          <br></br>
 
-          {capacity.aggOutput && <CapacityViewer capacity={capacity} data={data} outputType={"aggOutput"}></CapacityViewer>}
+          {capacity.aggOutput ? <CapacityViewer capacity={capacity} data={data} outputType={"aggOutput"}></CapacityViewer> : capacity.status && <span><Spinner animation="border" variant="danger" className="me-2" />{capacity.status} </span>}
 
+          <br></br>
+          <br></br>
+
+          {capacity.aggTotals && <AggregatedTotals capacity={capacity} />}
+
+          <br></br>
           <br></br>
 
           {capacity.aggOutput && <SQLTable input={capacity.getAggregatedTable(data.fields.filter(field => field.aggregatable))} title="Table View" />}
