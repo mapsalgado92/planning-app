@@ -59,10 +59,10 @@ export async function getServerSideProps() {
 
   const isConnected = await client.isConnected()
 
-  const projects = await db.collection("projects").find({}).toArray()
-  const languages = await db.collection("languages").find({}).toArray()
-  const lobs = await db.collection("lobs").find({}).toArray()
-  const capPlans = await db.collection("capPlans").find({}).toArray()
+  const projects = await db.collection("projects").find({}).sort({ name: 1 }).toArray()
+  const languages = await db.collection("languages").find({}).sort({ name: 1 }).toArray()
+  const lobs = await db.collection("lobs").find({}).sort({ name: 1 }).toArray()
+  const capPlans = await db.collection("capPlans").find({}).sort({ name: 1 }).toArray()
   const weeks = await db.collection("weeks").find({}).toArray()
   const fields = await db.collection("fields").find({}).toArray()
 
