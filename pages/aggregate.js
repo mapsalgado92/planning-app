@@ -8,6 +8,7 @@ import CapacityViewer from '../components/capacity/CapacityViewer'
 import useWeeks from '../hooks/useWeeks'
 import SQLTable from '../components/capacity/SQLTable'
 import AggregatedTotals from '../components/capacity/AggregatedTotals'
+import TotalPercentageChart from '../components/capacity/TotalPercentageChart'
 
 const Aggregate = (props) => {
   const [data, setData] = useState(props)
@@ -184,10 +185,30 @@ const Aggregate = (props) => {
           <br></br>
           <br></br>
 
-          {capacity.aggTotals && <AggregatedTotals capacity={capacity} />}
+          {capacity.aggOutput && <AggregatedTotals capacity={capacity} />}
+
+          <br />
+          <br />
+
+
+          {capacity.aggOutput && <>
+            <h3 className="text-center mb-0">FTE vs Attrition</h3>
+            <TotalPercentageChart data={capacity.aggOutput} lines={["billableFTE", "totalFTE", "expectedFTE"]} percentages={["attrPercent"]} />
+          </>
+          }
+          <br />
+          <br />
+
+          {capacity.aggOutput && <>
+            <h3 className="text-center mb-0">Training</h3>
+            <TotalPercentageChart data={capacity.aggOutput} lines={["trainees", "nesting"]} />
+          </>
+          }
 
           <br></br>
           <br></br>
+
+
 
           {capacity.aggOutput && <SQLTable input={capacity.getAggregatedTable(data.fields.filter(field => field.aggregatable))} title="Table View" />}
 

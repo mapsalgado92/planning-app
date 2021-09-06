@@ -6,6 +6,7 @@ import { connectToDatabase } from '../lib/mongodb'
 import useCapacity from '../hooks/useCapacity'
 import CapacityViewer from '../components/capacity/CapacityViewer'
 import useWeeks from '../hooks/useWeeks'
+import TotalPercentageChart from '../components/capacity/TotalPercentageChart'
 
 const Capacity = (props) => {
   const [data, setData] = useState(props)
@@ -89,12 +90,29 @@ const Capacity = (props) => {
             <Button size="sm" onClick={() => capacity.generate(selected.capPlan, formInfo.toWeek)} variant="dark" disabled={!selected.week}>GENERATE CAPACITY</Button>
 
           </Form>
-
+          <br />
           <br />
           {capacity.output &&
             <CapacityViewer data={data} capacity={capacity} outputType={"output"}></CapacityViewer>
           }
+          <br />
+          <br />
 
+
+          {capacity.output && <>
+            <h3 className="text-center mb-0">FTE vs Attrition</h3>
+            <TotalPercentageChart data={capacity.output} lines={["billableFTE", "totalFTE", "expectedFTE"]} percentages={["attrPercent", "fcAttrition"]} />
+          </>
+          }
+          <br />
+          <br />
+
+          {capacity.output && <>
+            <h3 className="text-center mb-0">Training</h3>
+            <TotalPercentageChart data={capacity.output} lines={["trainees", "nesting"]} />
+          </>
+          }
+          <br />
           <br />
 
           {capacity.output &&

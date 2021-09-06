@@ -15,11 +15,7 @@ const useCapacity = (data) => {
 
     let entries = await fetch(`api/capEntries/capPlan=${capPlan._id}`).then(data => data.json()).catch()
 
-    console.log("ENTRIES", entries)
-
     let weeks = myWeeks.getWeekRange(capPlan.firstWeek, toWeek)
-
-    console.log("WEEKS", weeks)
 
     const thisWeek = myWeeks.getCurrentWeek()
 
@@ -48,20 +44,28 @@ const useCapacity = (data) => {
       let entry = entries.find(entry => entry.week === week.code)
 
       let newPlanWeek = {
+        firstDate: week.firstDate.split("T")[0],
         totalHC: current.totalHC,
         totalFTE: current.totalFTE,
-        expectedFTE: current.expectedFTE ? current.expectedFTE : thisWeek && thisWeek.code === week.code && current.totalFTE,
         billableFTE: current.billableFTE,
         requiredFTE: current.requiredFTE,
         trainees: 0,
         nesting: 0,
       }
 
+      //Set up Expected FTE
+
+      if (current.expectedFTE) {
+        newPlanWeek.expectedFTE = current.expectedFTE
+      } else if (thisWeek && thisWeek.code === week.code) {
+        newPlanWeek.expectedFTE = current.totalFTE
+      }
+
       if (entry && entry.attrition) {
         newPlanWeek.totalHC -= parseFloat(entry.attrition)
         newPlanWeek.totalFTE -= parseFloat(entry.attrition)
         newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE -= parseFloat(entry.attrition))
-        newPlanWeek.attrPercent = entry.attrition / current.totalHC * 100
+        newPlanWeek.attrPercent = Math.round(entry.attrition / current.totalHC * 100) / 100
       }
 
       if (entry && entry.moveOUT) {
@@ -156,6 +160,10 @@ const useCapacity = (data) => {
         current.isFuture = true
       }
 
+      if (newPlanWeek.expectedFTE) {
+        newPlanWeek.expectedFTE = Math.round(newPlanWeek.expectedFTE * 100) / 100
+      }
+
 
       //Calculations
       newPlanWeek.billableFTE && (newPlanWeek.billVar = newPlanWeek.totalFTE - newPlanWeek.billableFTE)
@@ -177,7 +185,7 @@ const useCapacity = (data) => {
   const aggregate = async (capPlans, fromWeek, toWeek) => {
     setAggOutput(null)
     setStatus("Aggregating...")
-    let aggregated = myWeeks.getWeekRange(fromWeek.code, toWeek.code).map(week => { return { week: week } })
+    let aggregated = myWeeks.getWeekRange(fromWeek.code, toWeek.code).map(week => { return { week: week, firstDate: week.firstDate.split("T")[0] } })
 
     for await (let capPlan of capPlans) {
       if (myWeeks.getWeekRange(toWeek, capPlan.firstWeek) === []) {
@@ -191,18 +199,19 @@ const useCapacity = (data) => {
           if (weekly) {
             let newAgg = { ...agg }
             data.fields.forEach(field => {
-              if (field.aggregatable && weekly[field.internal]) {
+              if (field.aggregatable && (weekly[field.internal] || weekly[field.internal] === 0)) {
                 if (newAgg[field.internal] || newAgg[field.internal] === 0) {
-                  newAgg[field.internal] = parseFloat(newAgg[field.internal]) + parseFloat(weekly[field.internal])
+                  newAgg[field.internal] = Math.round(newAgg[field.internal] * 100) / 100 + Math.round(parseFloat(weekly[field.internal]) * 100) / 100
                 } else {
-                  newAgg[field.internal] = parseFloat(weekly[field.internal])
+                  newAgg[field.internal] = Math.round(parseFloat(weekly[field.internal]) * 100) / 100
+                  console.log("FIRST WEEKLY", newAgg[field.internal])
                 }
               }
             })
 
             //attrPercentException
             if (newAgg.attrition) {
-              newAgg.attrPercent = newAgg.attrition / newAgg.totalHC
+              newAgg.attrPercent = Math.round(newAgg.attrition / newAgg.totalHC * 100) / 100
             }
 
             return newAgg
