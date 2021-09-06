@@ -176,13 +176,13 @@ const Entries = (props) => {
                 <InputGroup size="sm">
                   <Form.Control
                     readOnly={true}
+                    className="ms-1"
 
                     aria-label={field}
                     value={(entry && entry[field]) || "none"}
-
                   />
                   <Form.Control
-                    className={"ms-1" + (formInfo[field] ? "border-danger" : "")}
+                    className={"ms-1 " + (formInfo[field] ? "border-danger" : "")}
 
                     aria-label={field}
                     value={formInfo[field] || ""}
