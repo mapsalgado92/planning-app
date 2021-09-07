@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import { useState } from 'react'
 import { Row, Col, ListGroup, Container, Form, DropdownButton, InputGroup, Button } from 'react-bootstrap'
+import useCapacity from '../hooks/useCapacity'
 import { connectToDatabase } from '../lib/mongodb'
 
 const Entries = (props) => {
@@ -8,6 +9,8 @@ const Entries = (props) => {
   const [selected, setSelected] = useState({ project: null, lob: null, capPlan: null, week: null })
   const [entry, setEntry] = useState(null)
   const [formInfo, setFormInfo] = useState({})
+
+  const capacity = useCapacity(data)
 
   const headcountFields = [
     "attrition",
@@ -47,6 +50,7 @@ const Entries = (props) => {
     "AHT",
     "Requirements"
   ]
+
 
   const handleChange = (e, field, changeConfig) => {
     if (!changeConfig) {
@@ -109,6 +113,8 @@ const Entries = (props) => {
       })
 
     console.log(res)
+
+    capacity.rawUpdate(selected.capPlan)
 
     handleSelect(selected.week, "week")
 

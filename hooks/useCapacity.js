@@ -15,7 +15,7 @@ const useCapacity = (data) => {
 
     let entries = await fetch(`api/capEntries/capPlan=${capPlan._id}`).then(data => data.json()).catch()
 
-    let weeks = myWeeks.getWeekRange(capPlan.firstWeek, toWeek)
+    let weeks = toWeek ? myWeeks.getWeekRange(capPlan.firstWeek, toWeek) : data.weeks
 
     const thisWeek = myWeeks.getCurrentWeek()
 
@@ -321,11 +321,37 @@ const useCapacity = (data) => {
     })
   }
 
+  const rawUpdate = async (capPlan) => {
+    let language = data.languages.find(language => language._id === capPlan.language)
+    console.log("LANGUAGE", language)
+    let rawData = await generate(capPlan)
+    console.log("Raw Data", rawData)
+    if (rawData.length > 0) {
+      fetch(`/api/raw/capPlan=${capPlan._id}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          item: {
+            capPlan: capPlan._id,
+            languageType: language.type,
+            laguageSet: language.set,
+            rawData
+          }
+        })
+      })
+    }
+
+  }
+
   return ({
     generate,
     aggregate,
     getTable,
     getAggregatedTable,
+    rawUpdate,
     aggTotals,
     output,
     aggOutput,

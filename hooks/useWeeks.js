@@ -21,6 +21,10 @@ const useWeeks = (data) => {
 
   }
 
+  const getMonth = (week) => {
+    return week.firstDate.split("T")[0].split("-")[2]
+  }
+
   return (
     {
       getCurrentWeek,

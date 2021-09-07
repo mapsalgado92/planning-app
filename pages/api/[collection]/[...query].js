@@ -28,4 +28,11 @@ export default async function handler(req, res) {
       res.status(404).json(output)
     }
   }
+  if (req.method === 'POST') {
+    let newData = req.body.item
+    console.log("NEW DATA", newData)
+    await updateInDatabase(db, collection, parsedQuery, newData)
+    res.status(200).json(newData)
+    console.log(`Item Updated in ${collection}`)
+  }
 }
