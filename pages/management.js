@@ -43,7 +43,7 @@ export default function Management(props) {
                 <ListGroup.Item action onClick={() => setScreen("capPlans")}>Capacity Plans</ListGroup.Item>
                 <ListGroup.Item action variant="danger" onClick={async () => {
                   setUpdating(true)
-                  for await (let capPlan of data.capPlans) {
+                  for await (let capPlan of data.capPlans.filter(capPlan => capPlan.active)) {
                     await capacity.rawUpdate(capPlan)
                   }
                   setUpdating(false)
