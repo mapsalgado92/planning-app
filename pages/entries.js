@@ -8,6 +8,7 @@ const Entries = (props) => {
   const [data, setData] = useState(props)
   const [selected, setSelected] = useState({ project: null, lob: null, capPlan: null, week: null })
   const [entry, setEntry] = useState(null)
+  const [loaded, setLoaded] = useState(false)
   const [formInfo, setFormInfo] = useState({})
 
   const capacity = useCapacity(data)
@@ -63,6 +64,7 @@ const Entries = (props) => {
   const handleSelect = async (item, type) => {
 
     setEntry(null)
+    setLoaded(false)
     setFormInfo({})
 
     if (type === "project") {
@@ -74,11 +76,12 @@ const Entries = (props) => {
     } else if (type === "week") {
       setSelected({ ...selected, week: item })
       let entries = await fetch(`api/capEntries/capPlan=${selected.capPlan._id}/week=${item.code}`).then(data => data.json()).catch()
-      console.log("ENTRY", entries)
+      setLoaded(true)
       if (entries.length === 1) {
         setEntry(entries[0])
         setFormInfo({ "Comment": entries[0]["Comment"] })
       }
+
     }
   }
 
@@ -326,7 +329,7 @@ const Entries = (props) => {
 
             <Row>
               <Col>
-                <Button size="sm" className="w-100" onClick={handleSubmit}>Submit</Button>
+                <Button size="sm" className="w-100" onClick={handleSubmit} disabled={!loaded}>Submit</Button>
               </Col>
             </Row>
 

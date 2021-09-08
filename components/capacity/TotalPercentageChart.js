@@ -11,7 +11,7 @@ const TotalPercentageChart = ({ data, lines, bars, percentages }) => {
         <ComposedChart
           data={data}
           margin={{
-            top: 20,
+            top: 30,
             right: -10,
             left: -10,
             bottom: 60,
@@ -28,12 +28,11 @@ const TotalPercentageChart = ({ data, lines, bars, percentages }) => {
             textAnchor="end" // rather than setting "dy={50}" or something 
           />
 
-          <YAxis yAxisId="left" orientation="left" type="number" interval="preserveStartEnd" />
-          <YAxis yAxisId="right" orientation="right" type="number" interval="preserveStartEnd" />
+          <YAxis yAxisId="left" orientation="left" type="number" />
+          <YAxis yAxisId="right" orientation="right" type="number" />
 
 
           < Tooltip />
-
 
           {bars && bars.map((total, index) =>
             <Bar key={`bar -${index}`} dataKey={total} yAxisId="left" strokeWidth={1} fill={barColors[index + 4]} stroke={barColors[index + 4]} />
