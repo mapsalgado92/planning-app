@@ -9,6 +9,7 @@ const useCapacity = (data) => {
   const [aggTotals, setAggTotals] = useState(null)
   const [status, setStatus] = useState(null)
 
+
   let myWeeks = useWeeks(data)
 
   const generate = async (capPlan, toWeek) => {
@@ -178,6 +179,8 @@ const useCapacity = (data) => {
 
     setOutput(newPlan)
 
+
+
     return newPlan
 
   }
@@ -282,6 +285,7 @@ const useCapacity = (data) => {
     setAggTotals({ sums, averages, calculated: [attritionRate, trAttritionRate] })
     setAggOutput(aggregated)
     setStatus(null)
+
   }
 
   const getTable = (fields) => {
@@ -346,6 +350,7 @@ const useCapacity = (data) => {
       }
     }
 
+    console.log("Completely Updted Raw")
 
   }
 
