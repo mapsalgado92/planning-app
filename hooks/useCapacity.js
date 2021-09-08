@@ -310,13 +310,11 @@ const useCapacity = (data) => {
         (weekly[header] || weekly[header] === 0) ? Math.round(weekly[header] * 100) / 100 : null
       )]
     )
-
     return ({
       data: {
         header: ["Week", "First Date", ...fields.map(field => field.external)],
         entries: tableData
       },
-
       isConverted: true
     })
   }
@@ -324,25 +322,30 @@ const useCapacity = (data) => {
   const rawUpdate = async (capPlan) => {
     let language = data.languages.find(language => language._id === capPlan.language)
     console.log("LANGUAGE", language)
-    let rawData = await generate(capPlan)
-    console.log("Raw Data", rawData)
-    if (rawData.length > 0) {
-      fetch(`/api/raw/capPlan=${capPlan._id}`, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          item: {
-            capPlan: capPlan._id,
-            languageType: language.type,
-            laguageSet: language.set,
-            rawData
-          }
+    if (capPlan.active) {
+      let rawData = await generate(capPlan)
+      if (rawData.length > 0) {
+        fetch(`/api/raw/capPlan=${capPlan._id}`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            item: {
+              capPlan: capPlan._id,
+              capPlanName: capPlan.name,
+              languageType: language.type,
+              laguageSet: language.set,
+              rawData
+            }
+          })
         })
-      })
+      } else {
+        console.log("CAPACITY PLAN IS NOT ACTIVE")
+      }
     }
+
 
   }
 

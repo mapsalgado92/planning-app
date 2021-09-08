@@ -29,7 +29,8 @@ const useWeeks = (data) => {
     {
       getCurrentWeek,
       getWeek,
-      getWeekRange
+      getWeekRange,
+      getMonth
     }
   )
 }
