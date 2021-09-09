@@ -212,7 +212,7 @@ const useCapacity = (data) => {
 
             //attrPercentException
             if (newAgg.attrition) {
-              newAgg.attrPercent = Math.round(newAgg.attrition / newAgg.totalHC * 100) / 100
+              newAgg.attrPercent = Math.round(newAgg.attrition / (newAgg.totalHC * 100 + newAgg.attrition)) / 100
             }
 
             return newAgg
