@@ -138,9 +138,12 @@ const useCapacity = (data) => {
         } else if (batch.weeksToLive === 1) {
           newPlanWeek.totalHC += trainingTotal
           newPlanWeek.totalFTE += trainingTotal
-          if (current.isFuture && current.fcTrAttrition && newPlanWeek.expectedFTE) {
-            newPlanWeek.expectedFTE += trainingTotal * (1 - current.fcTrAttrition)
-            newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += trainingTotal)
+          if (newPlanWeek.expectedFTE) {
+            if (current.fcTrAttrition) {
+              newPlanWeek.expectedFTE += trainingTotal * (1 - current.fcTrAttrition)
+            } else {
+              newPlanWeek.expectedFTE += trainingTotal
+            }
           }
 
           batch.weeksToLive--
