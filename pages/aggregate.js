@@ -1,7 +1,7 @@
 
 import Head from 'next/head'
 import { useState } from 'react'
-import { ListGroup, Button, Container, Form, DropdownButton, InputGroup, Tabs, Tab, Spinner } from 'react-bootstrap'
+import { ListGroup, Button, Container, Form, DropdownButton, InputGroup, Spinner } from 'react-bootstrap'
 import { connectToDatabase } from '../lib/mongodb'
 import useCapacity from '../hooks/useCapacity'
 import CapacityViewer from '../components/capacity/CapacityViewer'
@@ -232,9 +232,8 @@ export async function getServerSideProps() {
   const languages = await db.collection("languages").find({}).sort({ name: 1 }).toArray()
   const lobs = await db.collection("lobs").find({}).sort({ name: 1 }).toArray()
   const capPlans = await db.collection("capPlans").find({}).sort({ name: 1 }).toArray()
-  const weeks = await db.collection("weeks").find({}).sort({ weekNum: -1, year: -1 }).toArray()
-  const fields = await db.collection("fields").find({}).toArray()
-
+  const weeks = await db.collection("weeks").find({}).sort({ year: 1, weekNum: 1 }).toArray()
+  const fields = await db.collection("fields").find({}).sort({ order: 1 }).toArray()
   const props = { isConnected, projects, languages, lobs, weeks, capPlans, fields }
 
   return {

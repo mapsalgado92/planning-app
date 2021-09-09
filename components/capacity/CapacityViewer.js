@@ -6,36 +6,13 @@ const CapacityViewer = ({ capacity, data, outputType, title }) => {
 
   const myWeeks = useWeeks(data)
 
-  const [totals, setTotals] = useState({
-
-  })
-
-  const [averages, setAverages] = useState({
-
-  })
-
   return (<>
     <span className="h3">{title ? title : "CAPACITY VIEWER"}
     </span>
     <div style={{ overflowX: "scroll" }} className="d-flex flex-row text-nowrap text-center w-100 ">
       <div className="d-flex flex-column bg-white sticky-horizontal border-end border-2 border-dark text-end">
         <h6 className="sticky-header-2 bg-primary text-white text-center mb-0 py-1 px-2">Field</h6>
-        {data.fields && data.fields.sort((a, b) => {
-          let sortOrder = {
-            capacity: 1,
-            headcount: 2,
-            training: 3,
-            target: 4,
-            forecast: 5
-          }
-          if (sortOrder[a.type] > sortOrder[b.type]) {
-            return 1
-          } else if (sortOrder[a.type] < sortOrder[b.type]) {
-            return -1
-          } else {
-            return 0
-          }
-        }).filter(field => {
+        {data.fields && data.fields.filter(field => {
           if (outputType === "output") {
             return true
           } else {
@@ -61,22 +38,7 @@ const CapacityViewer = ({ capacity, data, outputType, title }) => {
           </h6>
 
           {
-            data.fields && data.fields.sort((a, b) => {
-              let sortOrder = {
-                capacity: 1,
-                headcount: 2,
-                training: 3,
-                target: 4,
-                forecast: 5
-              }
-              if (sortOrder[a.type] > sortOrder[b.type]) {
-                return 1
-              } else if (sortOrder[a.type] < sortOrder[b.type]) {
-                return -1
-              } else {
-                return 0
-              }
-            }).filter(field => {
+            data.fields && data.fields.filter(field => {
               if (outputType === "output") {
                 return true
               } else {
