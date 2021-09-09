@@ -266,6 +266,8 @@ const useCapacity = (data) => {
 
     if (attritionSum && totalHCAvg) {
       attritionRate.value = attritionSum.value / totalHCAvg.value
+    } else {
+      attritionRate.value = 0
     }
 
     console.log("ATTR RATE", attritionRate.value * 100, "%")
