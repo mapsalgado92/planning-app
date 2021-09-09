@@ -140,7 +140,6 @@ const useCapacity = (data) => {
           newPlanWeek.totalFTE += trainingTotal
           if (current.isFuture && current.fcTrAttrition && newPlanWeek.expectedFTE) {
             newPlanWeek.expectedFTE += trainingTotal * (1 - current.fcTrAttrition)
-          } else {
             newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += trainingTotal)
           }
 
@@ -156,7 +155,6 @@ const useCapacity = (data) => {
       if (entry && entry.fcAttrition && current.isFuture) {
         newPlanWeek.expectedFTE = newPlanWeek.expectedFTE * (1 - parseFloat(entry.fcAttrition))
       }
-
       if (thisWeek && week.code === thisWeek.code) {
         current.isFuture = true
       }
@@ -204,7 +202,7 @@ const useCapacity = (data) => {
             data.fields.forEach(field => {
               if (field.aggregatable && (weekly[field.internal] || weekly[field.internal] === 0)) {
                 if (newAgg[field.internal] || newAgg[field.internal] === 0) {
-                  newAgg[field.internal] = Math.round(newAgg[field.internal] * 100) / 100 + Math.round(parseFloat(weekly[field.internal]) * 100) / 100
+                  newAgg[field.internal] = Math.round((newAgg[field.internal] + parseFloat(weekly[field.internal])) * 100) / 100
                 } else {
                   newAgg[field.internal] = Math.round(parseFloat(weekly[field.internal]) * 100) / 100
                   console.log("FIRST WEEKLY", newAgg[field.internal])
