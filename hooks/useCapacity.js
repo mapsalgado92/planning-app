@@ -139,7 +139,7 @@ const useCapacity = (data) => {
           newPlanWeek.totalHC += trainingTotal
           newPlanWeek.totalFTE += trainingTotal
           if (newPlanWeek.expectedFTE) {
-            if (current.fcTrAttrition) {
+            if (current.fcTrAttrition && current.isFuture) {
               newPlanWeek.expectedFTE += trainingTotal * (1 - current.fcTrAttrition)
             } else {
               newPlanWeek.expectedFTE += trainingTotal
