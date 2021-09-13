@@ -66,7 +66,7 @@ const useCapacity = (data) => {
         newPlanWeek.totalHC -= parseFloat(entry.attrition)
         newPlanWeek.totalFTE -= parseFloat(entry.attrition)
         newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE -= parseFloat(entry.attrition))
-        newPlanWeek.attrPercent = Math.round(entry.attrition / current.totalHC * 100) / 100
+        newPlanWeek.attrPercent = Math.round(entry.attrition / current.totalHC * 10000) / 100
       }
 
       if (entry && entry.moveOUT) {
@@ -156,7 +156,9 @@ const useCapacity = (data) => {
       })
 
       if (entry && entry.fcAttrition && current.isFuture) {
-        newPlanWeek.expectedFTE = newPlanWeek.expectedFTE * (1 - parseFloat(entry.fcAttrition))
+        newPlanWeek.fcAttrition = parseFloat(entry.fcAttrition) * 100
+        newPlanWeek.expectedFTE = newPlanWeek.expectedFTE * (1 - newPlanWeek.fcAttrition / 100)
+
       }
       if (thisWeek && week.code === thisWeek.code) {
         current.isFuture = true
@@ -215,7 +217,7 @@ const useCapacity = (data) => {
 
             //attrPercentException
             if (newAgg.attrition) {
-              newAgg.attrPercent = Math.round(newAgg.attrition / (newAgg.totalHC + newAgg.attrition) * 100) / 100
+              newAgg.attrPercent = Math.round(newAgg.attrition / (newAgg.totalHC + newAgg.attrition) * 10000) / 100
             }
 
             return newAgg
