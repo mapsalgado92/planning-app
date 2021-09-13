@@ -155,19 +155,16 @@ const useCapacity = (data) => {
         }
       })
 
-      if (entry && entry.fcAttrition && current.isFuture) {
+      if (entry && entry.fcAttrition) {
         newPlanWeek.fcAttrition = parseFloat(entry.fcAttrition) * 100
-        newPlanWeek.expectedFTE = newPlanWeek.expectedFTE * (1 - newPlanWeek.fcAttrition / 100)
-
+        if (current.isFuture) {
+          newPlanWeek.expectedFTE = newPlanWeek.expectedFTE * (1 - newPlanWeek.fcAttrition / 100)
+        }
       }
+
       if (thisWeek && week.code === thisWeek.code) {
         current.isFuture = true
       }
-
-      if (newPlanWeek.expectedFTE) {
-        newPlanWeek.expectedFTE = Math.round(newPlanWeek.expectedFTE * 100) / 100
-      }
-
 
       //Calculations
       newPlanWeek.billableFTE && (newPlanWeek.billVar = newPlanWeek.totalFTE - newPlanWeek.billableFTE)
@@ -177,7 +174,7 @@ const useCapacity = (data) => {
 
       current = { ...current, ...newPlanWeek }
 
-      return { ...newPlanWeek, ...entry, week }
+      return { ...entry, ...newPlanWeek, week }
     })
 
     setOutput(newPlan)
