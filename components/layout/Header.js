@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 
 const Header = () => {
@@ -6,7 +7,10 @@ const Header = () => {
   return (
     <nav className="navbar">
       <div className="container">
-        <Link href="/"><a className="navbar-brand text-danger">planning app</a></Link>
+        <div className="d-flex flex-row">
+          <Image alt="logo" src={"/android-chrome-192x192.png"} height={20} width={40}></Image>
+          <Link href="/"><a className="navbar-brand text-danger ms-3">planning app</a></Link>
+        </div>
 
         <ul className="navbar-nav mr-auto d-flex flex-row align-items-center">
 
