@@ -8,7 +8,7 @@ const Header = () => {
     <nav className="navbar">
       <div className="container">
         <div className="d-flex flex-row">
-          <Image alt="logo" src={"/android-chrome-192x192.png"} height={20} width={40}></Image>
+          <Image alt="logo" src={"/android-chrome-192x192.png"} height={40} width={40} ></Image>
           <Link href="/"><a className="navbar-brand text-danger ms-3">planning app</a></Link>
         </div>
 

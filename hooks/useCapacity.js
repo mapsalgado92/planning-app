@@ -156,9 +156,9 @@ const useCapacity = (data) => {
       })
 
       if (entry && entry.fcAttrition) {
-        newPlanWeek.fcAttrition = parseFloat(entry.fcAttrition) * 100
+        newPlanWeek.fcAttrition = Math.round(parseFloat(entry.fcAttrition) * 1000) / 10
         if (current.isFuture) {
-          newPlanWeek.expectedFTE = newPlanWeek.expectedFTE * (1 - newPlanWeek.fcAttrition / 100)
+          newPlanWeek.expectedFTE = Math.round(newPlanWeek.expectedFTE * (1 - newPlanWeek.fcAttrition / 100) * 100) / 100
         }
       }
 
