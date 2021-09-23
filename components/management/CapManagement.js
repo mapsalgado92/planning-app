@@ -19,10 +19,11 @@ const CapManagement = ({ data, refresh }) => {
       setFormInfo({
         firstWeek: item.firstWeek,
         startingHC: item.startingHC,
-        active: item.active
+        active: item.active,
+        name: item.name
       })
     } else {
-      setFormInfo({ firstWeek: "", startingHC: "" })
+      setFormInfo({ firstWeek: "", startingHC: "", active: "false", name: "" })
     }
   }
 
@@ -197,6 +198,14 @@ const CapManagement = ({ data, refresh }) => {
 
             </InputGroup>
 
+            <Form.Label as="h5" className="mt-4">Name</Form.Label>
+            <Form.Control
+              placeholder="Custom Name"
+              aria-label="Custom Name"
+              value={formInfo.name ? formInfo.name : ""}
+              onChange={(e) => handleChange(e, "name")}
+            />
+
             <Form.Label as="h5" className="mt-4">Active</Form.Label>
             <Form.Check
               placeholder="Active Capacity Plan"
@@ -225,7 +234,6 @@ const CapManagement = ({ data, refresh }) => {
           <br />
 
           <Button size="sm" variant="outline-success" onClick={handleEditCapPlan} disabled={!selected.capPlan}>UPDATE CAPACITY PLAN</Button>
-
 
         </Tab>
 
