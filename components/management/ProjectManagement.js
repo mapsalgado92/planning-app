@@ -5,7 +5,7 @@ import { useState } from 'react'
 
 const ProjectManagement = ({ data, refresh }) => {
   const [selected, setSelected] = useState({ project: null })
-  const [formInfo, setFormInfo] = useState({ projectName: "", startDate: null })
+  const [formInfo, setFormInfo] = useState({ projectName: "", startDate: null, bUnit: null })
 
 
   const handleSelect = (project) => {
@@ -18,7 +18,7 @@ const ProjectManagement = ({ data, refresh }) => {
       newStartDate = new Date(project.startDate)
     }
 
-    setFormInfo({ projectName: project.name, startDate: newStartDate })
+    setFormInfo({ projectName: project.name, startDate: newStartDate, bUnit: project.bUnit ? project.bUnit : "" })
   }
 
   const handleChange = (e, field) => {
@@ -27,7 +27,7 @@ const ProjectManagement = ({ data, refresh }) => {
 
   const handleAddProject = async () => {
     if (formInfo.projectName) {
-      let project = { name: formInfo.projectName }
+      let project = { name: formInfo.projectName, bUnit: formInfo.bUnit }
       let res = await fetch("/api/projects",
         {
           method: 'POST',
@@ -54,6 +54,9 @@ const ProjectManagement = ({ data, refresh }) => {
     if (formInfo.startDate) {
       project.startDate = formInfo.startDate
     }
+    if (formInfo.bUnit) {
+      project.bUnit = formInfo.bUnit
+    }
 
     let res = await fetch("/api/projects",
       {
@@ -68,7 +71,7 @@ const ProjectManagement = ({ data, refresh }) => {
       })
 
     console.log(res)
-    setFormInfo({ projectName: "", setDate: "" })
+    setFormInfo({ projectName: "", setDate: "", bUnit: "" })
     setSelected({ project: null })
     refresh("projects")
   }
@@ -110,6 +113,15 @@ const ProjectManagement = ({ data, refresh }) => {
               value={formInfo.projectName}
               onChange={(e) => handleChange(e, "projectName")}
             />
+
+            <Form.Label as="h5" className="mt-4">Business Unit</Form.Label>
+            <Form.Control
+              placeholder="Business Unit"
+              aria-label="Business Unit"
+              value={formInfo.bUnit}
+              onChange={(e) => handleChange(e, "bUnit")}
+            />
+
             <Form.Label as="h5" className="mt-4">Start Date</Form.Label>
             <InputGroup >
               <DatePicker style={{ zIndex: 999 }} placeholderText="Start Date" selected={formInfo.startDate} onChange={(date) => setFormInfo({ ...formInfo, startDate: date })}></DatePicker>
