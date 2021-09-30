@@ -120,6 +120,7 @@ const useCapacity = (data) => {
           trCommit: parseFloat(entry.trCommit),
           trGap: entry.trGap ? parseFloat(entry.trGap) : 0,
           trAttrition: entry.trAttrition ? parseFloat(entry.trAttrition) : 0,
+          ocpAttrition: entry.ocpAttrition ? parseFloat(entry.ocpAttrition) : 0,
           weeksToLive: parseFloat(current.trWeeks) + 1,
           weeksToProd: parseFloat(current.ocpWeeks) + 1
         })
@@ -136,8 +137,8 @@ const useCapacity = (data) => {
           newPlanWeek.trainees += trainingTotal
           batch.weeksToLive--
         } else if (batch.weeksToLive === 1) {
-          newPlanWeek.totalHC += trainingTotal
-          newPlanWeek.totalFTE += trainingTotal
+          newPlanWeek.totalHC += trainingTotal - batch.ocpAttrition
+          newPlanWeek.totalFTE += trainingTotal - batch.ocpAttrition
           if (newPlanWeek.expectedFTE) {
             if (current.fcTrAttrition && current.isFuture) {
               newPlanWeek.expectedFTE += trainingTotal * (1 - current.fcTrAttrition)
@@ -150,7 +151,7 @@ const useCapacity = (data) => {
         }
 
         if (batch.weeksToLive < 1 && batch.weeksToProd > 1) {
-          newPlanWeek.nesting += trainingTotal
+          newPlanWeek.nesting += trainingTotal - batch.ocpAttrition
           batch.weeksToProd--
         }
       })
@@ -283,8 +284,17 @@ const useCapacity = (data) => {
       value: sums.find(sum => sum.field.internal === "trAttrition").value / (sums.find(sum => sum.field.internal === "trCommit").value + sums.find(sum => sum.field.internal === "trGap").value)
     }
 
+    let ocpAttritionRate = {
+      field: {
+        internal: "ocpAttritionRate",
+        external: "OCP Attrition Rate",
+        _id: "ocpAttrition-id"
+      },
+      value: sums.find(sum => sum.field.internal === "ocpAttrition").value / (sums.find(sum => sum.field.internal === "trCommit").value + sums.find(sum => sum.field.internal === "trGap").value)
+    }
 
-    setAggTotals({ sums, averages, calculated: [attritionRate, trAttritionRate] })
+
+    setAggTotals({ sums, averages, calculated: [attritionRate, trAttritionRate, ocpAttritionRate] })
     setAggOutput(aggregated)
     setStatus(null)
 

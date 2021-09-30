@@ -27,6 +27,7 @@ const Entries = (props) => {
     "trCommit",
     "trGap",
     "trAttrition",
+    "ocpAttrition",
     "trWeeks",
     "ocpWeeks"
   ]
