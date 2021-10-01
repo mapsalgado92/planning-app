@@ -35,7 +35,7 @@ const TotalPercentageChart = ({ data, lines, bars, percentages }) => {
           < Tooltip />
 
           {bars && bars.map((total, index) =>
-            <Bar key={`bar -${index}`} dataKey={total} yAxisId="left" strokeWidth={1} fill={barColors[index + 4]} stroke={barColors[index + 4]} />
+            <Bar key={`bar -${index}`} dataKey={total} style={{ opacity: "0.5" }} yAxisId="left" strokeWidth={1} fill={barColors[index + 3]} stroke={barColors[index + 3]} />
           )}
           {percentages && percentages.map((percentage, index) =>
             <Bar key={`percent -${index}`} dataKey={percentage} style={{ opacity: "0.7" }} yAxisId="right" strokeWidth={1} fill={lineColors[index + 4]} stroke={lineColors[index + 4]} />

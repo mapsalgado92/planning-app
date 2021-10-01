@@ -109,7 +109,7 @@ const Capacity = (props) => {
 
           {capacity.output && <>
             <h3 className="text-center mb-0">Training</h3>
-            <TotalPercentageChart data={capacity.output} lines={["trainees", "nesting"]} />
+            <TotalPercentageChart data={capacity.output} lines={["trainees", "nesting"]} bars={["trCommit"]} />
           </>
           }
           <br />
@@ -117,29 +117,7 @@ const Capacity = (props) => {
 
           {capacity.output &&
 
-            <Tabs >
-
-              <Tab title="Capacity" disabled={!capacity.output} eventKey="capacity">
-                <br />
-                {capacity.output &&
-                  <SQLTable input={capacity.getTable(data.fields.filter(field => field.type === "capacity"))} title="Capacity View" />
-                }
-
-              </Tab>
-              <Tab title="Headcount" disabled={!capacity.output} eventKey="entries">
-                <br />
-                {capacity.output &&
-                  <SQLTable input={capacity.getTable(data.fields.filter(field => field.type === "headcount"))} title="Headcount View" />
-                }
-              </Tab>
-              <Tab title="Target + Forecast" disabled={!capacity.output} eventKey="targetForecast">
-                <br />
-                {capacity.output &&
-                  <SQLTable input={capacity.getTable(data.fields.filter(field => field.type === "target" || field.type === "forecast"))} title="Target + Forecast View" />
-                }
-              </Tab>
-
-            </Tabs>
+            <SQLTable input={capacity.getTable(data.fields)} title="Capacity View" />
 
           }
 

@@ -338,6 +338,8 @@ const useCapacity = (data) => {
   const rawUpdate = async (capPlan) => {
     let language = data.languages.find(language => language._id === capPlan.language)
     console.log("LANGUAGE", language)
+    let lob = data.lobs.find(lob => lob._id === capPlan.lob)
+    let project = data.projects.find(project => project._id === lob.project)
     if (capPlan.active) {
       let rawData = await generate(capPlan)
       if (rawData.length > 0) {
@@ -351,6 +353,8 @@ const useCapacity = (data) => {
             item: {
               capPlan: capPlan._id,
               capPlanName: capPlan.name,
+              project: project._id,
+              projectName: project.name,
               languageType: language.type,
               laguageSet: language.set,
               rawData
