@@ -1,17 +1,19 @@
 import Head from 'next/head'
 import { useState } from 'react'
-import { ListGroup, Button, Container, Form, DropdownButton, InputGroup, Tabs, Tab } from 'react-bootstrap'
+import { ListGroup, Button, Container, Form, DropdownButton, InputGroup, Modal, Row, Col } from 'react-bootstrap'
 import SQLTable from '../components/capacity/SQLTable'
 import { connectToDatabase } from '../lib/mongodb'
 import useCapacity from '../hooks/useCapacity'
 import CapacityViewer from '../components/capacity/CapacityViewer'
 import useWeeks from '../hooks/useWeeks'
 import TotalPercentageChart from '../components/capacity/TotalPercentageChart'
+import EntriyForm from '../components/entries/EntryForm'
 
 const Capacity = (props) => {
   const [data, setData] = useState(props)
   const [selected, setSelected] = useState({})
   const [formInfo, setFormInfo] = useState({})
+  const [modalShow, setModalShow] = useState(false)
   const capacity = useCapacity(data)
 
   const myWeeks = useWeeks(data)
@@ -24,10 +26,20 @@ const Capacity = (props) => {
       setSelected({ ...selected, lob: item, capPlan: null, week: null })
     } else if (type === "capPlan") {
       setSelected({ ...selected, capPlan: item, week: null })
+    } else if (type === "entryWeek") {
+      setSelected({ ...selected, entryWeek: item })
     } else if (type === "week") {
       setSelected({ ...selected, week: item })
       setFormInfo({ ...formInfo, toWeek: item.code })
     }
+  }
+
+  const handleShowModal = () => {
+    setModalShow(true)
+  }
+
+  const handleHideModal = () => {
+    setModalShow(false)
   }
 
 
@@ -74,20 +86,41 @@ const Capacity = (props) => {
             </InputGroup>
 
             <br></br>
+            <Row>
+              <Col sm={6}>
+                <Form.Label as="h4">To Week</Form.Label>
+                <DropdownButton size="sm" variant="danger" className="me-2" title={selected.week ? selected.week.code + " - " + selected.week.firstDate.split("T")[0] : "Select a Week"} disabled={!selected.capPlan}>
+                  <ListGroup variant="flush">
+                    {selected.capPlan && myWeeks.getWeekRange(selected.capPlan.firstWeek) && myWeeks.getWeekRange(selected.capPlan.firstWeek).map(week =>
+                      <ListGroup.Item key={week._id} action className={"rounded-0 flush" + (myWeeks.getCurrentWeek().code === week.code ? " border border-danger text-danger" : "")} variant={(selected.week && week.code === selected.week.code) ? "warning" : "light"} onClick={(e) => { e.preventDefault(); handleSelect(week, "week") }}>
+                        {week.code + " - " + week.firstDate.split("T")[0]}
+                      </ListGroup.Item>)}
+                  </ListGroup>
+                </DropdownButton>
 
-            <Form.Label as="h4">To Week</Form.Label>
-            <DropdownButton size="sm" variant="danger" className="me-2" title={selected.week ? selected.week.code + " - " + selected.week.firstDate.split("T")[0] : "Select a Week"} disabled={!selected.capPlan}>
-              <ListGroup variant="flush">
-                {selected.capPlan && myWeeks.getWeekRange(selected.capPlan.firstWeek) && myWeeks.getWeekRange(selected.capPlan.firstWeek).map(week =>
-                  <ListGroup.Item key={week._id} action className={"rounded-0 flush" + (myWeeks.getCurrentWeek().code === week.code ? " border border-danger text-danger" : "")} variant={(selected.week && week.code === selected.week.code) ? "warning" : "light"} onClick={(e) => { e.preventDefault(); handleSelect(week, "week") }}>
-                    {week.code + " - " + week.firstDate.split("T")[0]}
-                  </ListGroup.Item>)}
-              </ListGroup>
-            </DropdownButton>
+                <br />
 
-            <br />
+                <Button size="sm" onClick={() => capacity.generate(selected.capPlan, formInfo.toWeek)} variant="dark" disabled={!selected.week}>GENERATE CAPACITY</Button>
+                <br /><br />
+              </Col>
+              <Col sm={6}>
+                <Form.Label as="h4">Entry Week</Form.Label>
+                <DropdownButton size="sm" variant="warning" className="me-2" title={selected.entryWeek ? selected.entryWeek.code + " - " + selected.entryWeek.firstDate.split("T")[0] : "Select a Week"} disabled={!selected.capPlan}>
+                  <ListGroup variant="flush">
+                    {selected.capPlan && myWeeks.getWeekRange(selected.capPlan.firstWeek) && myWeeks.getWeekRange(selected.capPlan.firstWeek).map(week =>
+                      <ListGroup.Item key={week._id} action className={"rounded-0 flush" + (myWeeks.getCurrentWeek().code === week.code ? " border border-danger text-danger" : "")} variant={(selected.entryWeek && week.code === selected.entryWeek.code) ? "warning" : "light"} onClick={(e) => { e.preventDefault(); handleSelect(week, "entryWeek") }}>
+                        {week.code + " - " + week.firstDate.split("T")[0]}
+                      </ListGroup.Item>)}
+                  </ListGroup>
+                </DropdownButton>
+                <br />
 
-            <Button size="sm" onClick={() => capacity.generate(selected.capPlan, formInfo.toWeek)} variant="dark" disabled={!selected.week}>GENERATE CAPACITY</Button>
+                <Button size="sm" onClick={handleShowModal} variant="dark" disabled={!selected.entryWeek}>EDIT ENTRY</Button>
+                <br /><br />
+              </Col>
+            </Row>
+
+
 
           </Form>
           <br />
@@ -124,10 +157,18 @@ const Capacity = (props) => {
 
           <br />
 
-
         </Container>
 
-
+        <Modal size="xl" show={modalShow} onHide={handleHideModal}>
+          <Modal.Body>
+            <EntriyForm selected={selected} week={selected.entryWeek} capacity={capacity} />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleHideModal}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </main>
     </>
   )

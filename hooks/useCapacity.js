@@ -59,48 +59,48 @@ const useCapacity = (data) => {
       if (current.expectedFTE) {
         newPlanWeek.expectedFTE = current.expectedFTE
       } else if (thisWeek && thisWeek.code === week.code) {
-        newPlanWeek.expectedFTE = current.totalFTE
+        newPlanWeek.expectedFTE = current.totalFTE ? current.totalFTE : 0
       }
 
       if (entry && entry.attrition) {
         newPlanWeek.totalHC -= parseFloat(entry.attrition)
         newPlanWeek.totalFTE -= parseFloat(entry.attrition)
-        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE -= parseFloat(entry.attrition))
+        newPlanWeek.expectedFTE >= 0 && (newPlanWeek.expectedFTE -= parseFloat(entry.attrition))
         newPlanWeek.attrPercent = Math.round(entry.attrition / current.totalHC * 10000) / 100
       }
 
       if (entry && entry.moveOUT) {
         newPlanWeek.totalHC -= parseFloat(entry.moveOUT)
         newPlanWeek.totalFTE -= parseFloat(entry.moveOUT)
-        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE -= parseFloat(entry.moveOUT))
+        newPlanWeek.expectedFTE >= 0 && (newPlanWeek.expectedFTE -= parseFloat(entry.moveOUT))
       }
 
       if (entry && entry.loaOUT) {
         newPlanWeek.totalHC -= parseFloat(entry.loaOUT)
         newPlanWeek.totalFTE -= parseFloat(entry.loaOUT)
-        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE -= parseFloat(entry.loaOUT))
+        newPlanWeek.expectedFTE >= 0 && (newPlanWeek.expectedFTE -= parseFloat(entry.loaOUT))
       }
 
       if (entry && entry.rwsOUT) {
         newPlanWeek.totalFTE -= parseFloat(entry.rwsOUT)
-        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE -= parseFloat(entry.rwsOUT))
+        newPlanWeek.expectedFTE >= 0 && (newPlanWeek.expectedFTE -= parseFloat(entry.rwsOUT))
       }
 
       if (entry && entry.moveIN) {
         newPlanWeek.totalHC += parseFloat(entry.moveIN)
         newPlanWeek.totalFTE += parseFloat(entry.moveIN)
-        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += parseFloat(entry.moveIN))
+        newPlanWeek.expectedFTE >= 0 && (newPlanWeek.expectedFTE += parseFloat(entry.moveIN))
       }
 
       if (entry && entry.loaIN) {
         newPlanWeek.totalHC += parseFloat(entry.loaIN)
         newPlanWeek.totalFTE += parseFloat(entry.loaIN)
-        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += parseFloat(entry.loaIN))
+        newPlanWeek.expectedFTE >= 0 && (newPlanWeek.expectedFTE += parseFloat(entry.loaIN))
       }
 
       if (entry && entry.rwsIN) {
         newPlanWeek.totalFTE += parseFloat(entry.rwsIN)
-        newPlanWeek.expectedFTE && (newPlanWeek.expectedFTE += parseFloat(entry.rwsIN))
+        newPlanWeek.expectedFTE >= 0 && (newPlanWeek.expectedFTE += parseFloat(entry.rwsIN))
       }
 
       if (entry && entry.comment) {
@@ -139,7 +139,7 @@ const useCapacity = (data) => {
         } else if (batch.weeksToLive === 1) {
           newPlanWeek.totalHC += trainingTotal - batch.ocpAttrition
           newPlanWeek.totalFTE += trainingTotal - batch.ocpAttrition
-          if (newPlanWeek.expectedFTE) {
+          if (newPlanWeek.expectedFTE >= 0) {
             if (current.fcTrAttrition && current.isFuture) {
               newPlanWeek.expectedFTE += trainingTotal * (1 - current.fcTrAttrition)
             } else {
@@ -169,9 +169,9 @@ const useCapacity = (data) => {
 
       //Calculations
       newPlanWeek.billableFTE && (newPlanWeek.billVar = newPlanWeek.totalFTE - newPlanWeek.billableFTE)
-      newPlanWeek.expectedFTE && newPlanWeek.billableFTE && (newPlanWeek.exBillVar = newPlanWeek.expectedFTE - newPlanWeek.billableFTE)
+      newPlanWeek.expectedFTE >= 0 && newPlanWeek.billableFTE && (newPlanWeek.exBillVar = newPlanWeek.expectedFTE - newPlanWeek.billableFTE)
       newPlanWeek.requiredFTE && (newPlanWeek.reqVar = newPlanWeek.totalFTE - newPlanWeek.requiredFTE)
-      newPlanWeek.expectedFTE && newPlanWeek.requiredFTE && (newPlanWeek.exReqVar = newPlanWeek.expectedFTE - newPlanWeek.requiredFTE)
+      newPlanWeek.expectedFTE >= 0 && newPlanWeek.requiredFTE && (newPlanWeek.exReqVar = newPlanWeek.expectedFTE - newPlanWeek.requiredFTE)
 
       current = { ...current, ...newPlanWeek }
 
@@ -198,6 +198,8 @@ const useCapacity = (data) => {
       } else {
         let capacity = await generate(capPlan, toWeek.code)
 
+        console.log("CAPACITY", capacity)
+
         aggregated = await aggregated.map(agg => {
           let weekly = capacity.find(weekly => weekly.week.code === agg.week.code)
           if (weekly) {
@@ -206,9 +208,16 @@ const useCapacity = (data) => {
               if (field.aggregatable && (weekly[field.internal] || weekly[field.internal] === 0)) {
                 if (newAgg[field.internal] || newAgg[field.internal] === 0) {
                   newAgg[field.internal] = Math.round((newAgg[field.internal] + parseFloat(weekly[field.internal])) * 100) / 100
+
+
                 } else {
                   newAgg[field.internal] = Math.round(parseFloat(weekly[field.internal]) * 100) / 100
-                  console.log("FIRST WEEKLY", newAgg[field.internal])
+
+                  if (field.internal === "expectedFTE") {
+                    console.log("IT WAS EXPECTED FTE", weekly[field.internal], newAgg[field.internal])
+                    console.log(capPlan)
+                  }
+                  //console.log("FIRST WEEKLY", newAgg[field.internal])
                 }
               }
             })

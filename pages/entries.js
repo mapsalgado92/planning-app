@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import { useState } from 'react'
 import { Row, Col, ListGroup, Container, Form, DropdownButton, InputGroup, Button } from 'react-bootstrap'
+import CSVUploader from '../components/entries/CSVUploader'
 import useCapacity from '../hooks/useCapacity'
 import { connectToDatabase } from '../lib/mongodb'
 
@@ -10,6 +11,7 @@ const Entries = (props) => {
   const [entry, setEntry] = useState(null)
   const [loaded, setLoaded] = useState(false)
   const [formInfo, setFormInfo] = useState({})
+  const [csv, setCsv] = useState(null)
 
   const capacity = useCapacity(data)
 
@@ -133,6 +135,8 @@ const Entries = (props) => {
       <main>
         <Container className="mt-4">
           <h2 className="text-center text-danger">Entries</h2>
+          <br></br>
+          {/*<CSVUploader loadedHandler={(csv) => setCsv(csv)} removeHandler={() => setCsv(null)}></CSVUploader>*/}
 
           <Form>
             <Form.Label as="h4">Selection</Form.Label>
@@ -330,13 +334,20 @@ const Entries = (props) => {
 
             <Row>
               <Col>
+
                 <Button size="sm" className="w-100" onClick={handleSubmit} disabled={!loaded}>Submit</Button>
+
               </Col>
             </Row>
 
             <br></br>
 
           </Form>
+
+          <br></br>
+
+
+
         </Container>
       </main>
     </>
