@@ -14,8 +14,8 @@ const EntriyForm = ({ selected, week, capacity }) => {
       if (entries.length === 1) {
         setEntry(entries[0])
         setFormInfo({ "Comment": entries[0]["Comment"] })
-        setLoaded(true)
       }
+      setLoaded(true)
     }
 
     fetchEntry()
@@ -115,7 +115,7 @@ const EntriyForm = ({ selected, week, capacity }) => {
       <Container className="mt-4">
         <h2 className="text-center text-danger">Entries</h2>
         <br></br>
-        {/*<CSVUploader loadedHandler={(csv) => setCsv(csv)} removeHandler={() => setCsv(null)}></CSVUploader>*/}
+
         <Form>
           <Row>
             <Form.Label as="h4">Headcount</Form.Label>
