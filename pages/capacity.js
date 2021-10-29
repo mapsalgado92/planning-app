@@ -40,6 +40,7 @@ const Capacity = (props) => {
 
   const handleHideModal = () => {
     setModalShow(false)
+    capacity.generate(selected.capPlan, formInfo.toWeek)
   }
 
 

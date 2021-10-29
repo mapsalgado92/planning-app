@@ -107,7 +107,8 @@ const EntriyForm = ({ selected, week, capacity }) => {
     setEntry(newEntry)
     setFormInfo({ "Comment": newEntry["Comment"] })
 
-    capacity.rawUpdate(selected.capPlan)
+    await capacity.rawUpdate(selected.capPlan)
+
 
   }
 
