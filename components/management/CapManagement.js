@@ -70,11 +70,11 @@ const CapManagement = ({ data, refresh }) => {
 
     let url = `api/capEntries/week=${formInfo.firstWeek}/capPlan=${selected.capPlan._id}`
 
-    console.log(url)
+   
 
     res = await fetch(url).then(response => response.json())
 
-    console.log("THIS IS IT:", res)
+    
 
     if (res.length === 0) {
       res = await fetch("api/capEntries",

@@ -1,9 +1,9 @@
-import Head from 'next/head'
+
 import { useState, useEffect } from 'react'
 import { Row, Col, ListGroup, Container, Form, InputGroup, Button } from 'react-bootstrap'
 
 const EntriyForm = ({ selected, week, capacity }) => {
-  const [entry, setEntry] = useState({})
+  const [entry, setEntry] = useState(null)
   const [loaded, setLoaded] = useState(false)
   const [formInfo, setFormInfo] = useState({})
 
@@ -79,6 +79,7 @@ const EntriyForm = ({ selected, week, capacity }) => {
     } else {
       newEntry.capPlan = selected.capPlan._id
       newEntry.week = week.code
+      console.log("THIS IS NEW ENTRY", newEntry)
     }
 
     newEntry = { ...newEntry, ...formInfo }
