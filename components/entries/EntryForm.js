@@ -14,6 +14,10 @@ const EntriyForm = ({ selected, week, capacity }) => {
       if (entries.length === 1) {
         setEntry(entries[0])
         setFormInfo({ "Comment": entries[0]["Comment"] })
+      } else if (entries.length > 1) {
+        console.log("Multiple Entries!")
+      } else if (entries.length === 0) {
+        console.log("No entry found")
       }
       setLoaded(true)
     }

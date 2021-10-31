@@ -29,8 +29,22 @@ const Capacity = (props) => {
     } else if (type === "entryWeek") {
       setSelected({ ...selected, entryWeek: item })
     } else if (type === "week") {
-      setSelected({ ...selected, week: item })
-      setFormInfo({ ...formInfo, toWeek: item.code })
+      if (selected.fromWeek && selected.fromWeek.firstDate > item.firstDate) {
+        setSelected({ ...selected, fromWeek: item, week: item })
+        setFormInfo({ ...formInfo, fromWeek: item.code, toWeek: item.code })
+      } else {
+        setSelected({ ...selected, week: item })
+        setFormInfo({ ...formInfo, toWeek: item.code })
+      }
+
+    } else if (type === "fromWeek") {
+      if (selected.week && selected.week.firstDate < item.firstDate) {
+        setSelected({ ...selected, fromWeek: item, week: item })
+        setFormInfo({ ...formInfo, fromWeek: item.code, toWeek: item.code })
+      } else {
+        setSelected({ ...selected, fromWeek: item })
+        setFormInfo({ ...formInfo, fromWeek: item.code })
+      }
     }
   }
 
@@ -40,7 +54,7 @@ const Capacity = (props) => {
 
   const handleHideModal = () => {
     setModalShow(false)
-    capacity.generate(selected.capPlan, formInfo.toWeek)
+    capacity.generate(selected.capPlan, formInfo.toWeek, selected.fromWeek)
   }
 
 
@@ -89,19 +103,38 @@ const Capacity = (props) => {
             <br></br>
             <Row>
               <Col sm={6}>
-                <Form.Label as="h4">To Week</Form.Label>
-                <DropdownButton size="sm" variant="danger" className="me-2" title={selected.week ? selected.week.code + " - " + selected.week.firstDate.split("T")[0] : "Select a Week"} disabled={!selected.capPlan}>
-                  <ListGroup variant="flush">
-                    {selected.capPlan && myWeeks.getWeekRange(selected.capPlan.firstWeek) && myWeeks.getWeekRange(selected.capPlan.firstWeek).map(week =>
-                      <ListGroup.Item key={week._id} action className={"rounded-0 flush" + (myWeeks.getCurrentWeek().code === week.code ? " border border-danger text-danger" : "")} variant={(selected.week && week.code === selected.week.code) ? "warning" : "light"} onClick={(e) => { e.preventDefault(); handleSelect(week, "week") }}>
-                        {week.code + " - " + week.firstDate.split("T")[0]}
-                      </ListGroup.Item>)}
-                  </ListGroup>
-                </DropdownButton>
+
+                <InputGroup>
+                  <div className="me-4">
+                    <Form.Label as="h4">From Week</Form.Label>
+                    <DropdownButton size="sm" variant="danger" className="me-2" title={selected.fromWeek ? selected.fromWeek.code + " - " + selected.fromWeek.firstDate.split("T")[0] : "Select a Week"} disabled={!selected.capPlan}>
+                      <ListGroup variant="flush">
+                        {selected.capPlan && myWeeks.getWeekRange(selected.capPlan.firstWeek) && myWeeks.getWeekRange(selected.capPlan.firstWeek).map(week =>
+                          <ListGroup.Item key={week._id} action className={"rounded-0 flush" + (myWeeks.getCurrentWeek().code === week.code ? " border border-danger text-danger" : "")} variant={(selected.week && week.code === selected.week.code) ? "warning" : "light"} onClick={(e) => { e.preventDefault(); handleSelect(week, "fromWeek") }}>
+                            {week.firstDate.split("T")[0]}
+                          </ListGroup.Item>)}
+                      </ListGroup>
+                    </DropdownButton>
+                  </div>
+                  <div>
+                    <Form.Label as="h4">To Week</Form.Label>
+                    <DropdownButton size="sm" variant="danger" className="me-2" title={selected.week ? selected.week.code + " - " + selected.week.firstDate.split("T")[0] : "Select a Week"} disabled={!selected.capPlan}>
+                      <ListGroup variant="flush">
+                        {selected.capPlan && myWeeks.getWeekRange(selected.capPlan.firstWeek) && myWeeks.getWeekRange(selected.capPlan.firstWeek).map(week =>
+                          <ListGroup.Item key={week._id} action className={"rounded-0 flush" + (myWeeks.getCurrentWeek().code === week.code ? " border border-danger text-danger" : "")} variant={(selected.week && week.code === selected.week.code) ? "warning" : "light"} onClick={(e) => { e.preventDefault(); handleSelect(week, "week") }}>
+                            {week.firstDate.split("T")[0]}
+                          </ListGroup.Item>)}
+                      </ListGroup>
+                    </DropdownButton>
+                  </div>
+
+                </InputGroup>
+
+
 
                 <br />
 
-                <Button size="sm" onClick={() => capacity.generate(selected.capPlan, formInfo.toWeek)} variant="dark" disabled={!selected.week}>GENERATE CAPACITY</Button>
+                <Button size="sm" onClick={() => capacity.generate(selected.capPlan, formInfo.toWeek, selected.fromWeek)} variant="dark" disabled={!selected.week}>GENERATE CAPACITY</Button>
                 <br /><br />
               </Col>
               <Col sm={6}>

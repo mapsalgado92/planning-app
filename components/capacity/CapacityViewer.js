@@ -1,8 +1,7 @@
-import { useState } from "react"
-import { Badge, OverlayTrigger, Tooltip } from "react-bootstrap"
+import { OverlayTrigger, Tooltip } from "react-bootstrap"
 import useWeeks from "../../hooks/useWeeks"
 
-const CapacityViewer = ({ capacity, data, outputType, title }) => {
+const CapacityViewer = ({ capacity, data, outputType, title, fromWeek }) => {
 
   const myWeeks = useWeeks(data)
 

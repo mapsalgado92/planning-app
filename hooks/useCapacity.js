@@ -12,7 +12,7 @@ const useCapacity = (data) => {
 
   let myWeeks = useWeeks(data)
 
-  const generate = async (capPlan, toWeek) => {
+  const generate = async (capPlan, toWeek, fromWeek) => {
 
     let entries = await fetch(`api/capEntries/capPlan=${capPlan._id}`).then(data => data.json()).catch()
 
@@ -178,9 +178,11 @@ const useCapacity = (data) => {
       return { ...entry, ...newPlanWeek, week }
     })
 
-    setOutput(newPlan)
-
-
+    if (fromWeek) {
+      setOutput(newPlan.filter(weekly => weekly.week.firstDate >= fromWeek.firstDate))
+    } else {
+      setOutput(newPlan)
+    }
 
     return newPlan
 
